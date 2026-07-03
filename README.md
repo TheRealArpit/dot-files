@@ -155,6 +155,12 @@ export ARTIFACTORY_TOKEN=...
 cd ~/dotfiles-ibm && stow -R shell bash zsh starship nvim tmux ghostty
 ```
 
+### Ghostty not the default terminal
+macOS does not expose a URI scheme that tools like `duti` can target for terminals.
+Set Ghostty as default manually — either option works:
+- **Ghostty**: Settings → General → "Make Default Terminal"
+- **System Settings** (Sonoma+): Desktop & Dock → Default terminal app → Ghostty
+
 ### Starship not rendering correctly
 ```bash
 tail -3 ~/.zshrc ~/.bashrc       # confirm starship init is present
