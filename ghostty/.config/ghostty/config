@@ -2,9 +2,8 @@
 # Ghostty config
 # =============================================================
 
-# Theme — managed via ~/dotfiles/themes/<name>.sh + active-theme file
-# To switch: update THEME in .bashrc, run switch-theme (see TODO)
-config-file = ~/.config/ghostty/active-theme
+# Theme
+theme = Catppuccin Mocha
 
 # Font
 font-family = JetBrainsMono Nerd Font
