@@ -161,6 +161,33 @@ Set Ghostty as default manually — either option works:
 - **Ghostty**: Settings → General → "Make Default Terminal"
 - **System Settings** (Sonoma+): Desktop & Dock → Default terminal app → Ghostty
 
+### Icons look broken / boxes instead of glyphs
+This config uses Nerd Font icons throughout — in Neovim (LSP diagnostics, completion
+kinds, file icons), Tmux (status bar), and Starship (prompt symbols). A Nerd Font
+**must** be active in your terminal or everything will render as `?` boxes.
+
+The bootstrap scripts install JetBrains Mono Nerd Font automatically:
+- **macOS**: installed via `brew install --cask font-jetbrains-mono-nerd-font`, set in Ghostty config automatically
+- **Linux**: installed to `~/.local/share/fonts/`, set in Ghostty config automatically
+
+If you're using a terminal other than Ghostty, you need to set the font manually:
+- **GNOME Terminal**: Preferences → your profile → Text → Custom font → `JetBrainsMono Nerd Font`
+- **Konsole**: Settings → Edit Current Profile → Appearance → Font → `JetBrainsMono Nerd Font`
+- **Any other terminal**: look for font settings and select `JetBrainsMono Nerd Font Mono`
+
+If the font isn't installed at all:
+```bash
+# macOS
+brew install --cask font-jetbrains-mono-nerd-font
+
+# Linux
+mkdir -p ~/.local/share/fonts
+wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O /tmp/JetBrainsMono.zip
+unzip -q /tmp/JetBrainsMono.zip -d ~/.local/share/fonts/JetBrainsMono
+fc-cache -f
+rm /tmp/JetBrainsMono.zip
+```
+
 ### Starship not rendering correctly
 ```bash
 tail -3 ~/.zshrc ~/.bashrc       # confirm starship init is present
