@@ -8,8 +8,6 @@
 
 set -e  # exit on any error
 DOTFILES_DIR="$HOME/dotfiles-ibm"
-GITHUB_USERNAME="lamzyyy"
-
 # colours for output
 OK="\e[32m✓\e[0m"
 SKIP="\e[33m~\e[0m"
@@ -70,8 +68,7 @@ pkg_map() {
   case "$1:$DISTRO" in
     fd-find:arch)               echo "fd" ;;
     java-21-openjdk-devel:arch) echo "jdk21-openjdk" ;;
-    postgresql-server:arch)     echo "postgresql" ;;
-    postgresql:arch)            echo "" ;;   # single package on Arch covers both
+    postgresql-client:arch)     echo "postgresql" ;;
     *)                          echo "$1" ;;
   esac
 }
@@ -245,36 +242,27 @@ else
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  nvm install 20
-  nvm alias default 20
-  ok "nvm + node 20"
+  nvm install 24
+  nvm alias default 24
+  ok "nvm + node 24"
 fi
 
 # =============================================================
-# 11. PNPM + GLOBALS (neovim, tree-sitter-cli)
+# 11. NPM GLOBALS (neovim, tree-sitter-cli)
 # neovim: node provider required by some nvim plugins
 # tree-sitter-cli: compiles language parsers for nvim-treesitter
 # =============================================================
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-if ! npm list -g pnpm &>/dev/null 2>&1; then
-  log "Installing pnpm..."
-  npm install -g pnpm && ok "pnpm"
-else
-  skip "pnpm"
-fi
-
-if command -v pnpm &>/dev/null; then
-  for pkg in neovim tree-sitter-cli; do
-    if pnpm list -g 2>/dev/null | grep -q "$pkg"; then
-      skip "pnpm: $pkg"
-    else
-      log "Installing pnpm global: $pkg..."
-      pnpm add -g "$pkg" && ok "pnpm: $pkg"
-    fi
-  done
-fi
+for pkg in neovim tree-sitter-cli; do
+  if npm list -g "$pkg" &>/dev/null 2>&1; then
+    skip "npm: $pkg"
+  else
+    log "Installing npm global: $pkg..."
+    npm install -g "$pkg" && ok "npm: $pkg"
+  fi
+done
 
 # =============================================================
 # 12. GIT-DELTA (diff pager)
@@ -316,14 +304,10 @@ else
 fi
 
 # =============================================================
-# 16. DOTFILES — clone and stow
+# 16. DOTFILES — stow
 # =============================================================
-if [ -d "$DOTFILES_DIR" ]; then
-  skip "dotfiles repo (already exists at $DOTFILES_DIR)"
-else
-  log "Cloning dotfiles..."
-  git clone "https://github.com/$GITHUB_USERNAME/dotfiles-ibm.git" "$DOTFILES_DIR"
-  ok "dotfiles cloned"
+if [ ! -d "$DOTFILES_DIR" ]; then
+  err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm"
 fi
 
 log "Stowing dotfiles..."
@@ -371,52 +355,50 @@ tmux new-session -d -s tpm-install 2>/dev/null || true
 tmux kill-session -t tpm-install 2>/dev/null || true
 
 # =============================================================
-# 18. POSTGRESQL
+# 18. POSTGRESQL CLIENT + CONTAINER (matches apim-ci dev setup)
+# The client package provides psql, pg_dump etc. for local use.
+# The server runs as postgres:15.4 container on port 5432 via
+# Podman (podman-docker shim routes docker commands transparently).
+# Credentials: postgres / password  (dev only — never use in prod)
+#
+# To run natively instead of as a container:
+#   Fedora: sudo dnf install postgresql postgresql-server
+#           sudo postgresql-setup --initdb
+#           sudo systemctl enable --now postgresql
+#   Arch:   sudo pacman -S postgresql
+#           sudo -u postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data
+#           sudo systemctl enable --now postgresql
 # =============================================================
-if is_pkg_installed "$(pkg_map postgresql-server)"; then
-  skip "postgresql"
+log "Installing PostgreSQL client tools..."
+case "$DISTRO" in
+  fedora) install_pkg postgresql ;;
+  arch)   install_pkg "$(pkg_map postgresql-client)" ;;
+esac
+
+if docker ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^postgres$"; then
+  skip "postgres container"
 else
-  log "Installing PostgreSQL..."
-  case "$DISTRO" in
-    fedora)
-      install_pkg postgresql postgresql-server
-      sudo postgresql-setup --initdb
-      ;;
-    arch)
-      install_pkg postgresql
-      sudo -u postgres initdb --locale en_US.UTF-8 -D /var/lib/postgres/data
-      ;;
-  esac
-  sudo systemctl enable --now postgresql
-  ok "postgresql (running, enabled)"
+  log "Starting postgres:15.4 container..."
+  docker run -d \
+    --name postgres \
+    --restart unless-stopped \
+    -p 5432:5432 \
+    -e POSTGRES_PASSWORD=password \
+    postgres:15.4 \
+    postgres -c log_statement=all -c log_line_prefix='%t %d '
+  ok "postgres:15.4 (port 5432, user: postgres, password: password)"
 fi
 
 # =============================================================
 # 23. GHOSTTY (terminal emulator)
+# Available in official Fedora 42+ and Arch repos — no COPR needed.
 # =============================================================
 if command -v ghostty &>/dev/null; then
   skip "ghostty"
 else
   log "Installing Ghostty..."
-  case "$DISTRO" in
-    fedora)
-      sudo dnf5 copr enable scottames/ghostty -y
-      install_pkg ghostty
-      ;;
-    arch)
-      install_pkg ghostty
-      ;;
-  esac
+  install_pkg ghostty
   ok "ghostty"
-fi
-# Download catppuccin theme (COPR build ships without bundled themes)
-GHOSTTY_THEME_DIR="$HOME/.config/ghostty/themes"
-if [[ ! -f "$GHOSTTY_THEME_DIR/catppuccin-mocha.conf" ]]; then
-  log "Downloading Ghostty catppuccin-mocha theme..."
-  mkdir -p "$GHOSTTY_THEME_DIR"
-  curl -sL "https://raw.githubusercontent.com/catppuccin/ghostty/main/themes/catppuccin-mocha.conf" \
-    -o "$GHOSTTY_THEME_DIR/catppuccin-mocha.conf"
-  ok "ghostty catppuccin-mocha theme"
 fi
 
 # =============================================================
