@@ -221,14 +221,6 @@ fi
 # =============================================================
 brew_cask_install ghostty
 
-brew_install duti
-if duti -x terminal 2>/dev/null | grep -qi ghostty; then
-  skip "ghostty as default terminal"
-else
-  log "Setting Ghostty as default terminal..."
-  duti -s com.mitchellh.ghostty x-scheme-handler/terminal all && ok "ghostty default terminal"
-fi
-
 # =============================================================
 # 11. POETRY (Python dependency manager)
 # Installed via Homebrew — cleaner on Mac than the curl installer,
@@ -306,5 +298,7 @@ echo ""
 echo -e "\e[32m=== Bootstrap complete ===\e[0m"
 echo "  • Open a new terminal window to pick up zsh + all PATH changes"
 echo "  • If Ghostty's font looks wrong, ensure 'JetBrainsMono Nerd Font' is selected in its config"
+echo "  • To set Ghostty as default terminal: open Ghostty → Settings → General → 'Make Default Terminal'"
+echo "  •   or: System Settings → Desktop & Dock → Default terminal app → Ghostty"
 echo "  • Open Rancher Desktop once and follow the setup wizard before using docker/kubectl"
 echo "  • Work secrets (VELOX_*, API keys) → ~/.config/shell/work.sh  (never commit this file)"
