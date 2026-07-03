@@ -31,14 +31,6 @@ install_tarball() {
   rm -rf "${tmp}.tar.gz" "$tmp"
 }
 
-# sparse_clone <url> <dest_dir> <sparse_path>
-# Shallow-clones only the specified subdirectory of a repo.
-sparse_clone() {
-  local url="$1" dir="$2" path="$3"
-  git clone --depth=1 --filter=blob:none --sparse "$url" "$dir"
-  git -C "$dir" sparse-checkout set "$path"
-}
-
 # =============================================================
 # DISTRO DETECTION
 # =============================================================
@@ -287,7 +279,7 @@ for pkg in neovim tree-sitter-cli; do
 done
 
 # =============================================================
-# 12. GIT-DELTA (diff pager)
+# 11. GIT-DELTA (diff pager)
 # Replaces the default git diff output with syntax highlighting,
 # line numbers, and side-by-side view.
 # =============================================================
@@ -309,7 +301,7 @@ git config --global delta.line-numbers true
 git config --global merge.conflictstyle diff3
 
 # =============================================================
-# 15. FONTS — JetBrains Mono Nerd Font
+# 12. FONTS — JetBrains Mono Nerd Font
 # =============================================================
 FONT_DIR="$HOME/.local/share/fonts"
 if fc-list | grep -qi "JetBrainsMono"; then
@@ -326,7 +318,7 @@ else
 fi
 
 # =============================================================
-# 16. DOTFILES — stow
+# 13. DOTFILES — stow
 # =============================================================
 if [ ! -d "$DOTFILES_DIR" ]; then
   err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm"
@@ -360,7 +352,7 @@ ok "dotfiles stowed"
 [ -d "$BACKUP_DIR" ] && log "Pre-existing configs backed up to $BACKUP_DIR" || true
 
 # =============================================================
-# 17. TMUX PLUGIN MANAGER (TPM)
+# 14. TMUX PLUGIN MANAGER (TPM)
 # =============================================================
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 if [ -d "$TPM_DIR" ]; then
@@ -377,7 +369,7 @@ tmux new-session -d -s tpm-install 2>/dev/null || true
 tmux kill-session -t tpm-install 2>/dev/null || true
 
 # =============================================================
-# 18. POSTGRESQL CLIENT + CONTAINER (matches apim-ci dev setup)
+# 15. POSTGRESQL CLIENT + CONTAINER (matches apim-ci dev setup)
 # The client package provides psql, pg_dump etc. for local use.
 # The server runs as postgres:15.4 container on port 5432 via
 # Podman (podman-docker shim routes docker commands transparently).
@@ -412,7 +404,7 @@ else
 fi
 
 # =============================================================
-# 23. GHOSTTY (terminal emulator)
+# 16. GHOSTTY (terminal emulator)
 # Available in official Fedora 42+ and Arch repos — no COPR needed.
 # =============================================================
 if command -v ghostty &>/dev/null; then

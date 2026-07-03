@@ -39,10 +39,6 @@ brew_cask_install() {
   fi
 }
 
-# #############################################################
-# CORE — runs on every profile
-# #############################################################
-
 # =============================================================
 # 0. HOMEBREW
 # =============================================================
@@ -123,7 +119,7 @@ CORE_CLI=(
   curl              # used by most install scripts
   starship
   tree-sitter-cli   # needed for nvim-treesitter parser compilation
-  maven             # Java build tool
+  maven             # Java build tool — required for apim-ci
   btop              # system monitor — CPU, memory, network, disk
   jq                # JSON processor — query and transform JSON from the command line
 )
@@ -268,7 +264,7 @@ tmux kill-session -t tpm-install 2>/dev/null || true
 # 14. DOTFILES — stow
 # =============================================================
 if [ ! -d "$DOTFILES_DIR" ]; then
-  err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.com/lamzyyy/dotfiles-ibm.git ~/dotfiles-ibm"
+  err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm"
 fi
 
 log "Stowing dotfiles..."

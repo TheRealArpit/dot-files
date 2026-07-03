@@ -10,7 +10,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/) — symlinks everyth
 ### macOS
 
 ```bash
-git clone https://github.com/lamzyyy/dotfiles-ibm.git ~/dotfiles-ibm
+git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm
 cd ~/dotfiles-ibm
 bash install-mac.sh
 ```
@@ -18,7 +18,7 @@ bash install-mac.sh
 ### Linux (Fedora / Arch)
 
 ```bash
-git clone https://github.com/lamzyyy/dotfiles-ibm.git ~/dotfiles-ibm
+git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm
 cd ~/dotfiles-ibm
 bash install.sh
 ```
