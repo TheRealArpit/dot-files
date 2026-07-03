@@ -1,0 +1,24 @@
+# =============================================================
+# Ghostty config
+# =============================================================
+
+# Theme — managed via ~/dotfiles/themes/<name>.sh + active-theme file
+# To switch: update THEME in .bashrc, run switch-theme (see TODO)
+config-file = ~/.config/ghostty/active-theme
+
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 13
+
+# Window
+window-padding-x = 8
+window-padding-y = 8
+background-opacity = 0.97
+
+# Shell integration
+shell-integration = zsh
+
+# Behaviour
+confirm-close-surface = false
+mouse-hide-while-typing = true
+copy-on-select = false

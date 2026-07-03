@@ -1,0 +1,113 @@
+# ~/.config/starship.toml — Catppuccin Mocha
+# alameen-adedeji — backend/AI engineer, Python + TypeScript, GitLab
+# ─── Layout ───────────────────────────────────────────
+# All separators, connectors, icons, and spacing live here.
+# Each component below outputs only its own data.
+format = """
+$username$hostname [❯](#45475a) $directory\
+( [on](#45475a) $git_branch$git_status)\
+$cmd_duration$status\
+(  $python)\
+(  $nodejs)\
+(  $rust)\
+(  $docker_context)
+$character"""
+add_newline = true
+
+# ─── Username ─────────────────────────────────────────
+[username]
+format      = '[$user]($style)'
+style_user  = 'bold #89b4fa'
+style_root  = 'bold #f38ba8'
+show_always = true
+
+# ─── Hostname ─────────────────────────────────────────
+# Red on SSH — instant "you're on a remote machine" signal
+[hostname]
+ssh_only  = false
+format    = '[@$hostname]($style)[$ssh_symbol](#f38ba8)'
+style     = '#cba6f7'
+ssh_symbol = ' 🌐'
+
+# ─── Directory ────────────────────────────────────────
+[directory]
+format            = '[$path]($style)[$read_only]($read_only_style)'
+style             = 'bold #a6e3a1'
+read_only         = ' 󰌾'
+read_only_style   = '#f38ba8'
+truncation_length = 3
+truncate_to_repo  = true
+home_symbol       = '~'
+
+# ─── Git branch ───────────────────────────────────────
+[git_branch]
+format            = '[$branch]($style)'
+style             = 'bold #f38ba8'
+truncation_length = 28
+truncation_symbol = '…'
+
+# ─── Git status ───────────────────────────────────────
+[git_status]
+format     = '( [$all_status]($style))'
+style      = '#fab387'
+conflicted = '⚡'
+ahead      = '↑${count}'
+behind     = '↓${count}'
+diverged   = '⇕↑${ahead_count}↓${behind_count}'
+staged     = '✚${count}'
+modified   = '✎${count}'
+untracked  = '?${count}'
+deleted    = '✖${count}'
+stashed    = '≡'
+
+# ─── Command duration ─────────────────────────────────
+[cmd_duration]
+min_time = 2_000
+format   = ' [$duration]($style)'
+style    = '#f9e2af'
+
+# ─── Status ───────────────────────────────────────────
+[status]
+disabled         = false
+format           = ' [$symbol$status]($style)'
+style            = 'bold #f38ba8'
+symbol           = '✖ '
+success_symbol   = ''
+not_found_symbol = '󰍉'
+
+# ─── Python ───────────────────────────────────────────
+# Shows version + venv name — critical for AI/ML work with multiple envs
+[python]
+format             = '[${pyenv_prefix}$version(\($virtualenv\))]($style)'
+style              = '#f9e2af'
+detect_extensions  = ["py"]
+detect_files       = ["pyproject.toml", "requirements.txt", ".python-version",
+                      "Pipfile", "poetry.lock", "uv.lock"]
+python_binary      = ["python3", "python"]
+
+# ─── Node / TypeScript ────────────────────────────────
+[nodejs]
+format            = '[$version]($style)'
+style             = '#a6e3a1'
+detect_files      = ["package.json", "tsconfig.json", ".nvmrc"]
+detect_extensions = ["ts", "tsx", "js", "mjs"]
+not_capable_style = '#f38ba8'
+
+# ─── Rust ─────────────────────────────────────────────
+[rust]
+format = '[$version]($style)'
+style  = '#fab387'
+
+# ─── Docker ───────────────────────────────────────────
+# Only appears when a compose file is present — no noise
+[docker_context]
+format          = '[$context]($style)'
+style           = '#89b4fa'
+only_with_files = true
+detect_files    = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+# ─── Character ────────────────────────────────────────
+[character]
+success_symbol = '[❯](#cba6f7)'
+error_symbol   = '[❯](#f38ba8)'
+vimcmd_symbol  = '[❮](#89b4fa)'
