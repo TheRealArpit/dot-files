@@ -83,19 +83,7 @@ case "$DISTRO" in
 esac
 
 # =============================================================
-# 2. ADDITIONAL REPOS (must run before package install)
-# =============================================================
-if [[ "$DISTRO" == "fedora" ]]; then
-  if ! dnf repolist enabled 2>/dev/null | grep -q 'atim/lazygit'; then
-    log "Enabling COPR: atim/lazygit..."
-    sudo dnf copr enable atim/lazygit -y
-  else
-    skip "copr: atim/lazygit"
-  fi
-fi
-
-# =============================================================
-# 3. PACKAGES
+# 2. PACKAGES
 # =============================================================
 PACKAGES=(
   # modern cli replacements
@@ -105,8 +93,6 @@ PACKAGES=(
   bat           # cat with syntax highlighting
   fzf           # fuzzy finder — wired to Ctrl+R, Ctrl+T, Alt+C in shell config
   zoxide        # smart cd with memory (use z instead of cd)
-  lazygit       # terminal UI for git
-  lazydocker    # terminal UI for managing containers, images, logs
   btop          # system monitor — CPU, memory, network, disk
   jq            # JSON processor — query and transform JSON from the command line
   # shell + dev essentials
@@ -141,11 +127,47 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # =============================================================
+# 3. LAZYGIT + LAZYDOCKER
+# Not in Fedora official repos — install from GitHub releases.
+# On Arch both are in the official extra repo (handled by PACKAGES above).
+# =============================================================
+LAZYGIT_VERSION="0.62.2"
+LAZYDOCKER_VERSION="0.25.2"
+
+if command -v lazygit &>/dev/null; then
+  skip "lazygit"
+else
+  case "$DISTRO" in
+    fedora)
+      log "Installing lazygit ${LAZYGIT_VERSION}..."
+      install_tarball lazygit \
+        "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+        "lazygit"
+      ok "lazygit"
+      ;;
+    arch) install_pkg lazygit ;;
+  esac
+fi
+
+if command -v lazydocker &>/dev/null; then
+  skip "lazydocker"
+else
+  case "$DISTRO" in
+    fedora)
+      log "Installing lazydocker ${LAZYDOCKER_VERSION}..."
+      install_tarball lazydocker \
+        "https://github.com/jesseduffield/lazydocker/releases/download/v${LAZYDOCKER_VERSION}/lazydocker_${LAZYDOCKER_VERSION}_Linux_x86_64.tar.gz" \
+        "lazydocker"
+      ok "lazydocker"
+      ;;
+    arch) install_pkg lazydocker ;;
+  esac
+fi
+
+# =============================================================
 # 4. ZSH — set as default interactive shell
 # Keep scripts explicitly Bash (#!/usr/bin/env bash) but use Zsh interactively.
 # Set SET_DEFAULT_SHELL=0 to leave $SHELL unchanged.
-# =============================================================
-# (section numbering continues from packages above)
 # =============================================================
 if command -v zsh &>/dev/null; then
   ZSH_PATH="$(command -v zsh)"
