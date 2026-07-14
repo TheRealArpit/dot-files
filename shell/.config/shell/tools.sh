@@ -1,5 +1,10 @@
 # Shared interactive tool configuration.
 
+# Work-specific env vars (VELOX_*, API keys, tokens) — never committed.
+_work_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/work.sh"
+[ -r "$_work_sh" ] && . "$_work_sh"
+unset _work_sh
+
 if command -v fdfind >/dev/null 2>&1 || command -v fd >/dev/null 2>&1; then
   _fd="$(command -v fdfind 2>/dev/null || command -v fd 2>/dev/null)"
   export FZF_DEFAULT_COMMAND="$_fd --type f --hidden --follow --exclude .git"

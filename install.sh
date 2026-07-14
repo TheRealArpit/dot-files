@@ -279,7 +279,24 @@ for pkg in neovim tree-sitter-cli; do
 done
 
 # =============================================================
-# 11. GIT-DELTA (diff pager)
+# 11b. RUST (required by idig-broker to build the apic2gw native module)
+# Uses rustup — the same installer as macOS, works on any Linux distro.
+# =============================================================
+if command -v rustc &>/dev/null; then
+  skip "rust"
+else
+  log "Installing Rust via rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  # shellcheck source=/dev/null
+  . "$HOME/.cargo/env"
+  ok "rust ($(rustc --version))"
+fi
+
+# Ensure .cargo/env is sourced for the rest of this script
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# =============================================================
+# 11c. GIT-DELTA (diff pager)
 # Replaces the default git diff output with syntax highlighting,
 # line numbers, and side-by-side view.
 # =============================================================
@@ -428,5 +445,6 @@ echo "  1. Log out and back in  (group memberships take effect)"
 echo "  2. Open a new terminal  (zsh default shell takes effect after login)"
 echo "  3. Open nvim            (lazy.nvim auto-installs plugins on first launch)"
 echo ""
-echo "Work secrets (API keys, tokens) → ~/.config/shell/work.sh  (never commit this file)"
+echo "Work secrets (VELOX_*, API keys) → ~/.config/shell/work.sh  (never commit this file)"
+echo "idig-broker: clone to \$VELOX/idig-broker and run 'npm install && npm run build:apic2gw'"
 echo ""

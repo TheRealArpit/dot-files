@@ -122,6 +122,8 @@ CORE_CLI=(
   maven             # Java build tool — required for apim-ci
   btop              # system monitor — CPU, memory, network, disk
   jq                # JSON processor — query and transform JSON from the command line
+  minikube          # local Kubernetes cluster — required for idig-broker
+  kubectl           # Kubernetes CLI
 )
 
 for pkg in "${CORE_CLI[@]}"; do
@@ -244,7 +246,24 @@ else
 fi
 
 # =============================================================
-# 13. TMUX PLUGIN MANAGER (TPM)
+# 13. RUST (required by idig-broker to build the apic2gw native module)
+# Uses rustup — the standard Rust toolchain installer.
+# =============================================================
+if command -v rustc &>/dev/null; then
+  skip "rust"
+else
+  log "Installing Rust via rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  # shellcheck source=/dev/null
+  source "$HOME/.cargo/env"
+  ok "rust ($(rustc --version))"
+fi
+
+# Ensure .cargo/env is sourced for the rest of this script
+[ -s "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
+# =============================================================
+# 14. TMUX PLUGIN MANAGER (TPM)
 # =============================================================
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 if [ -d "$TPM_DIR" ]; then
@@ -261,7 +280,7 @@ tmux new-session -d -s tpm-install 2>/dev/null || true
 tmux kill-session -t tpm-install 2>/dev/null || true
 
 # =============================================================
-# 14. DOTFILES — stow
+# 15. DOTFILES — stow
 # =============================================================
 if [ ! -d "$DOTFILES_DIR" ]; then
   err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm"
@@ -298,3 +317,5 @@ echo "  • To set Ghostty as default terminal: open Ghostty → Settings → Ge
 echo "  •   or: System Settings → Desktop & Dock → Default terminal app → Ghostty"
 echo "  • Open Rancher Desktop once and follow the setup wizard before using docker/kubectl"
 echo "  • Work secrets (VELOX_*, API keys) → ~/.config/shell/work.sh  (never commit this file)"
+echo "  • Rust: add 'source \"\$HOME/.cargo/env\"' to work.sh if rustc is not on PATH after restart"
+echo "  • idig-broker: clone to \$VELOX/idig-broker and run 'npm install && npm run build:apic2gw'"

@@ -4,6 +4,10 @@ alias c='clear'
 alias ..='cd ..'
 alias ...='cd ../..'
 
+# --- IBM / velox project navigation ---
+alias velox='cd "${VELOX:-$HOME/apic}"'
+alias idig='cd "${VELOX:-$HOME/apic}/idig-broker"'
+
 alias t='tmux attach 2>/dev/null || tmux'   # attach to last session or start new
 
 alias gs='git status'

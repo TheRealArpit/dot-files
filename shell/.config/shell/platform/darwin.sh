@@ -20,4 +20,7 @@ if command -v brew >/dev/null 2>&1; then
   alias upgrade='brew upgrade'
 fi
 
+# Rust — source cargo env if present (installed via rustup)
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 unset _brew_prefix _gnudir

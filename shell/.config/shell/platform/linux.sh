@@ -24,4 +24,7 @@ esac
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
+# Rust — source cargo env if present (installed via rustup)
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 unset _shell_distro
