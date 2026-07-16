@@ -72,6 +72,8 @@ bash install.sh
 | `starship` | PS1 | Cross-shell prompt |
 | `vivid` | — | Catppuccin Mocha LS_COLORS generator |
 | `jq` | — | JSON processor — query, filter, transform JSON |
+| `minikube` | — | Local Kubernetes cluster — required for idig-broker |
+| `kubectl` | — | Kubernetes CLI |
 
 ---
 

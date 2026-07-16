@@ -106,6 +106,7 @@ CORE_CLI=(
   neovim
   tmux
   stow
+  python3           # required for Poetry installer — Homebrew Python avoids Xcode CLT venv bug
   eza               # ls with icons, git status, directory-first
   fd                # fast find that respects .gitignore
   ripgrep           # fast recursive grep
@@ -116,7 +117,6 @@ CORE_CLI=(
   lazydocker        # terminal UI for managing containers, images, logs
   git-delta         # syntax-highlighted git diffs with line numbers
   wget              # used for binary/tarball downloads
-  curl              # used by most install scripts
   starship
   tree-sitter-cli   # needed for nvim-treesitter parser compilation
   maven             # Java build tool — required for apim-ci
@@ -230,7 +230,11 @@ if command -v poetry &>/dev/null && poetry --version 2>/dev/null | grep -q "^Poe
   skip "poetry 1.x"
 else
   log "Installing poetry 1.8.5..."
-  curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
+  # Use Homebrew Python explicitly — macOS system Python 3.9 (Xcode CLT) cannot
+  # create venvs without symlinks and will crash the installer.
+  _py="$(command -v python3.12 || command -v python3.11 || command -v python3 2>/dev/null)"
+  curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 "$_py" -
+  unset _py
   ok "poetry 1.8.5"
 fi
 
@@ -264,24 +268,9 @@ fi
 [ -s "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 # =============================================================
-# 14. TMUX PLUGIN MANAGER (TPM)
-# =============================================================
-TPM_DIR="$HOME/.tmux/plugins/tpm"
-if [ -d "$TPM_DIR" ]; then
-  skip "tpm"
-else
-  log "Installing TPM..."
-  git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
-  ok "tpm"
-fi
-
-log "Installing tmux plugins via TPM..."
-tmux new-session -d -s tpm-install 2>/dev/null || true
-"$TPM_DIR/bin/install_plugins" && ok "tmux plugins"
-tmux kill-session -t tpm-install 2>/dev/null || true
-
-# =============================================================
-# 15. DOTFILES — stow
+# 14. DOTFILES — stow
+# Stow must run before TPM so ~/.tmux.conf is in place before
+# TPM tries to read TMUX_PLUGIN_MANAGER_PATH from it.
 # =============================================================
 if [ ! -d "$DOTFILES_DIR" ]; then
   err "Dotfiles not found at $DOTFILES_DIR — clone them first:\n  git clone https://github.ibm.com/Al-Ameen-Adedeji/dotfiles-ibm.git ~/dotfiles-ibm"
@@ -301,16 +290,36 @@ backup_if_real() {
   mv "$target" "$BACKUP_DIR/$1" && log "Backed up $target"
 }
 
-# Process substitution (< <(...)) keeps the while loop in the current shell
-# so all backups complete before stow runs on the next line.
+# stow --simulate prints conflicts as:
+#   "  * cannot stow .../foo over existing target bar since ..."
+# Extract the target path (field after "target") and back it up.
 for mod in shell bash zsh starship nvim tmux ghostty; do
   while IFS= read -r conflict; do
     backup_if_real "$conflict"
-  done < <(stow --simulate "$mod" 2>&1 | grep "existing target" | awk '{print $NF}')
+  done < <(stow --simulate "$mod" 2>&1 | awk '/existing target/{print $NF}')
   stow "$mod" && ok "stowed: $mod"
 done
 
 [ -d "$BACKUP_DIR" ] && log "Pre-existing configs backed up to $BACKUP_DIR" || true
+
+# =============================================================
+# 15. TMUX PLUGIN MANAGER (TPM)
+# Runs after stow so ~/.tmux.conf (with TMUX_PLUGIN_MANAGER_PATH)
+# is already in place.
+# =============================================================
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+if [ -d "$TPM_DIR" ]; then
+  skip "tpm"
+else
+  log "Installing TPM..."
+  git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+  ok "tpm"
+fi
+
+log "Installing tmux plugins via TPM..."
+tmux new-session -d -s tpm-install 2>/dev/null || true
+"$TPM_DIR/bin/install_plugins" && ok "tmux plugins"
+tmux kill-session -t tpm-install 2>/dev/null || true
 
 # #############################################################
 # DONE

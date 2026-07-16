@@ -1,0 +1,8 @@
+# Work secrets — never commit the real file, only the .example template
+shell/.config/shell/work.sh
+
+# macOS
+.DS_Store
+
+# Neovim
+nvim/.config/nvim/lazy-lock.json
