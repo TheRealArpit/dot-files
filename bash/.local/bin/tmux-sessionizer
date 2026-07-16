@@ -12,23 +12,20 @@
 # =============================================================
 
 # ── Search roots ─────────────────────────────────────────────
-# ~/dotfiles        → added as a single entry (stow-based, not a project tree)
-# existing sessions → tmux list-sessions (so open projects always appear)
-# ~/projects        → search one level deep
-# ~/work            → search one level deep
+# ~/dotfiles-ibm    → single entry (stow-based, not a project tree)
+# $VELOX            → apic monorepo root, searched one level deep
+# existing sessions → always appear so you can jump back to open work
 # To add more roots, extend the find command below.
 
 # ── If a path was given as an argument, skip fzf ─────────────
 if [[ $# -eq 1 ]]; then
     selected="$1"
 else
-    # dotfiles = one entry (don't search inside — it's stow packages, not projects)
-    # projects/work = search one level deep for actual repos
     selected=$(
         {
             echo "$HOME/dotfiles-ibm"
             tmux list-sessions -F "#{session_path}" 2>/dev/null
-            find "$HOME/projects" "$HOME/work" \
+            find "${VELOX:-$HOME/apic}" \
                 -mindepth 1 -maxdepth 1 \
                 -type d \
                 2>/dev/null

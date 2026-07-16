@@ -94,6 +94,12 @@ return {
       })
 
       vim.lsp.config("ts_ls", {
+        -- Only activate inside a JS/TS project — prevents the
+        -- "no valid TypeScript installation" error when opening
+        -- arbitrary files outside a project with a package.json.
+        root_dir = function(fname)
+          return vim.fs.root(fname, { "package.json", "tsconfig.json", "jsconfig.json" })
+        end,
         settings = {
           typescript  = { inlayHints = { includeInlayParameterNameHints = "all" } },
           javascript  = { inlayHints = { includeInlayParameterNameHints = "all" } },

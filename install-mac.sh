@@ -68,13 +68,17 @@ if ! grep -qxF "$ZSH_PATH" /etc/shells; then
 fi
 
 if [[ "${SET_DEFAULT_SHELL:-1}" == "1" ]]; then
-  if [[ "$SHELL" != "$ZSH_PATH" ]]; then
+  # Compare against the system-recorded shell, not just $SHELL env var,
+  # to avoid prompting when zsh is already set but $SHELL path differs.
+  _recorded_shell="$(dscl . -read ~/ UserShell 2>/dev/null | awk '{print $2}')"
+  if [[ "$_recorded_shell" != "$ZSH_PATH" ]]; then
     log "Setting zsh as default shell (you may be prompted for your password)..."
     chsh -s "$ZSH_PATH"
     ok "default shell -> zsh (takes effect on next login)"
   else
     ok "zsh already default shell"
   fi
+  unset _recorded_shell
 else
   log "Skipping default shell change (SET_DEFAULT_SHELL=0)"
 fi
@@ -254,18 +258,18 @@ fi
 # 13. RUST (required by idig-broker to build the apic2gw native module)
 # Uses rustup — the standard Rust toolchain installer.
 # =============================================================
+# Source cargo env first so 'command -v rustc' works on re-runs
+# even before the shell config (platform/darwin.sh) is stowed.
+[ -s "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
 if command -v rustc &>/dev/null; then
   skip "rust"
 else
   log "Installing Rust via rustup..."
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-  # shellcheck source=/dev/null
   source "$HOME/.cargo/env"
   ok "rust ($(rustc --version))"
 fi
-
-# Ensure .cargo/env is sourced for the rest of this script
-[ -s "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 # =============================================================
 # 14. DOTFILES — stow
@@ -281,8 +285,9 @@ cd "$DOTFILES_DIR"
 
 BACKUP_DIR="$HOME/.backups/dotfiles-$(date +%Y%m%d_%H%M%S)"
 
-# backup_if_real — moves a real file that would block stow into ~/.backups.
-# Symlinks are left alone so re-running is idempotent.
+# backup_if_real — if the path exists as a real file (not a symlink),
+# move it into ~/.backups before stow creates a symlink there.
+# Symlinks are left alone so re-running the script is safe.
 backup_if_real() {
   local target="$HOME/$1"
   [ -e "$target" ] && [ ! -L "$target" ] || return 0
@@ -290,13 +295,20 @@ backup_if_real() {
   mv "$target" "$BACKUP_DIR/$1" && log "Backed up $target"
 }
 
-# stow --simulate prints conflicts as:
-#   "  * cannot stow .../foo over existing target bar since ..."
-# Extract the target path (field after "target") and back it up.
+# Back up every file stow will replace — explicit list is easier to
+# reason about than parsing stow's simulate output.
+# Add a line here whenever a new stow module introduces a new target.
+backup_if_real ".bashrc"
+backup_if_real ".bash_profile"
+backup_if_real ".zshrc"
+backup_if_real ".zprofile"
+backup_if_real ".config/shell"
+backup_if_real ".config/starship.toml"
+backup_if_real ".config/nvim"
+backup_if_real ".config/ghostty"
+backup_if_real ".tmux.conf"
+
 for mod in shell bash zsh starship nvim tmux ghostty; do
-  while IFS= read -r conflict; do
-    backup_if_real "$conflict"
-  done < <(stow --simulate "$mod" 2>&1 | awk '/existing target/{print $NF}')
   stow "$mod" && ok "stowed: $mod"
 done
 
@@ -332,5 +344,3 @@ echo "  • To set Ghostty as default terminal: open Ghostty → Settings → Ge
 echo "  •   or: System Settings → Desktop & Dock → Default terminal app → Ghostty"
 echo "  • Open Rancher Desktop once and follow the setup wizard before using docker/kubectl"
 echo "  • Work secrets (VELOX_*, API keys) → ~/.config/shell/work.sh  (never commit this file)"
-echo "  • Rust: add 'source \"\$HOME/.cargo/env\"' to work.sh if rustc is not on PATH after restart"
-echo "  • idig-broker: clone to \$VELOX/idig-broker and run 'npm install && npm run build:apic2gw'"
