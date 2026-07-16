@@ -220,15 +220,16 @@ else
 fi
 
 # =============================================================
-# 8. POETRY (Python dependency manager)
-# Enterprise standard — manages virtualenvs and pyproject.toml deps.
+# 8. POETRY (Python dependency manager — pinned to v1.8.5)
+# api-assistant explicitly requires Poetry v1 (v2 not yet supported).
+# Pinned via the official installer's POETRY_VERSION env var.
 # =============================================================
-if command -v poetry &>/dev/null; then
-  skip "poetry"
+if command -v poetry &>/dev/null && poetry --version 2>/dev/null | grep -q "^Poetry (version 1\."; then
+  skip "poetry 1.x"
 else
-  log "Installing poetry..."
-  curl -sSL https://install.python-poetry.org | python3 -
-  ok "poetry"
+  log "Installing poetry 1.8.5..."
+  curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
+  ok "poetry 1.8.5"
 fi
 
 # =============================================================
@@ -406,7 +407,9 @@ case "$DISTRO" in
   arch)   install_pkg "$(pkg_map postgresql-client)" ;;
 esac
 
-if docker ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^postgres$"; then
+if ! command -v docker &>/dev/null; then
+  log "Skipping postgres container — docker not available (ensure podman-docker is installed and podman socket is active, then re-run this script)"
+elif docker ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^postgres$"; then
   skip "postgres container"
 else
   log "Starting postgres:15.4 container..."

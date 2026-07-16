@@ -161,6 +161,23 @@ Set Ghostty as default manually — either option works:
 - **Ghostty**: Settings → General → "Make Default Terminal"
 - **System Settings** (Sonoma+): Desktop & Dock → Default terminal app → Ghostty
 
+### `compinit: insecure files` on every shell start
+Happens when files under `/opt/homebrew/` are owned by a different user account
+(e.g. after Homebrew was first installed by another user on the same machine).
+Zsh refuses to trust completion files it doesn't own.
+
+```bash
+# Find what's flagged
+compaudit
+
+# Fix ownership across all three locations Homebrew uses
+sudo chown -R $(whoami):admin /opt/homebrew/share/zsh/
+sudo chown -R $(whoami):admin /opt/homebrew/Cellar/
+sudo chown -R $(whoami):admin /opt/homebrew/completions/
+```
+
+Then open a new terminal. If `compaudit` still returns files, run `chmod go-w` on each one.
+
 ### Icons look broken / boxes instead of glyphs
 This config uses Nerd Font icons throughout — in Neovim (LSP diagnostics, completion
 kinds, file icons), Tmux (status bar), and Starship (prompt symbols). A Nerd Font

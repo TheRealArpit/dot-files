@@ -200,7 +200,9 @@ fi
 # Credentials: postgres / password  (dev only — never use in prod)
 # Requires Rancher Desktop to be running first.
 # =============================================================
-if docker ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^postgres$"; then
+if ! command -v docker &>/dev/null; then
+  log "Skipping postgres container — docker not available (open Rancher Desktop and complete setup, then re-run this script)"
+elif docker ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^postgres$"; then
   skip "postgres container"
 else
   log "Starting postgres:15.4 container (ensure Rancher Desktop is running first)..."
@@ -220,17 +222,16 @@ fi
 brew_cask_install ghostty
 
 # =============================================================
-# 11. POETRY (Python dependency manager)
-# Installed via Homebrew — cleaner on Mac than the curl installer,
-# isolated from system Python and easy to update with brew upgrade.
-# Pinned to 1.8.5 — matches api-assistant devcontainer.
+# 11. POETRY (Python dependency manager — pinned to v1.8.5)
+# api-assistant explicitly requires Poetry v1 (v2 not yet supported).
+# Pinned via the official installer's POETRY_VERSION env var.
 # =============================================================
-if brew list poetry &>/dev/null; then
-  skip "poetry"
+if command -v poetry &>/dev/null && poetry --version 2>/dev/null | grep -q "^Poetry (version 1\."; then
+  skip "poetry 1.x"
 else
-  log "Installing poetry..."
-  brew install poetry
-  ok "poetry"
+  log "Installing poetry 1.8.5..."
+  curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -
+  ok "poetry 1.8.5"
 fi
 
 # =============================================================
@@ -291,16 +292,21 @@ cd "$DOTFILES_DIR"
 
 BACKUP_DIR="$HOME/.backups/dotfiles-$(date +%Y%m%d_%H%M%S)"
 
-# backup_conflict — moves any real file that would block stow into ~/.backups.
-# Existing symlinks are left alone so re-running the script is idempotent.
+# backup_if_real — moves a real file that would block stow into ~/.backups.
+# Symlinks are left alone so re-running is idempotent.
+backup_if_real() {
+  local target="$HOME/$1"
+  [ -e "$target" ] && [ ! -L "$target" ] || return 0
+  mkdir -p "$BACKUP_DIR/$(dirname "$1")"
+  mv "$target" "$BACKUP_DIR/$1" && log "Backed up $target"
+}
+
+# Process substitution (< <(...)) keeps the while loop in the current shell
+# so all backups complete before stow runs on the next line.
 for mod in shell bash zsh starship nvim tmux ghostty; do
-  stow --simulate "$mod" 2>&1 | grep "existing target" | awk '{print $NF}' | while read -r conflict; do
-    target="$HOME/$conflict"
-    if [ -e "$target" ] && [ ! -L "$target" ]; then
-      mkdir -p "$BACKUP_DIR/$(dirname "$conflict")"
-      mv "$target" "$BACKUP_DIR/$conflict" && log "Backed up $target"
-    fi
-  done
+  while IFS= read -r conflict; do
+    backup_if_real "$conflict"
+  done < <(stow --simulate "$mod" 2>&1 | grep "existing target" | awk '{print $NF}')
   stow "$mod" && ok "stowed: $mod"
 done
 
