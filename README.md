@@ -131,20 +131,20 @@ stow -R shell bash zsh starship nvim tmux ghostty
 
 ## Work secrets
 
-Work-specific environment variables (API keys, tokens, `VELOX_*` vars) go in:
+Work-specific environment variables (`VELOX_*`, API keys, tokens) go in:
 
 ```
 ~/.config/shell/work.sh
 ```
 
-This file is sourced automatically by the shell but is **never committed** — add it manually on each machine.
+This file is sourced automatically on every shell start (via `tools.sh`) but is **never committed**. A template with all expected variables is included in the repo:
 
-Example:
 ```bash
-# ~/.config/shell/work.sh
-export VELOX_DEVELOPMENT=true
-export ARTIFACTORY_TOKEN=...
+cp ~/.config/shell/work.sh.example ~/.config/shell/work.sh
+nvim ~/.config/shell/work.sh   # fill in your values
 ```
+
+The example file documents every variable with a placeholder value. At minimum you'll need to set `VELOX_W3_EMAIL` and `VELOX_ARTIFACTORY_KEY` for your own account.
 
 ---
 

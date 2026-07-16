@@ -1,0 +1,38 @@
+# work.sh.example — copy to ~/.config/shell/work.sh and fill in your values.
+# This file is committed as a template. The real work.sh is never committed.
+#
+# Usage:
+#   cp ~/.config/shell/work.sh.example ~/.config/shell/work.sh
+#   nvim ~/.config/shell/work.sh   # fill in your values
+#
+# work.sh is sourced automatically on every shell start (via tools.sh).
+
+# ── VELOX / API Connect ────────────────────────────────────────────────────────
+
+# Path to your local apic/velox checkout
+export VELOX=$HOME/apic
+
+# Feature flags — adjust to match your local dev setup
+export VELOX_DEVELOPMENT=true
+export VELOX_MUTUAL_TLS=false
+export VELOX_BRANCH=master          # branch your local stack runs against
+export VELOX_NOTIFY=false
+export VELOX_NOTIFY_INITIALS=AA     # your initials
+export VELOX_JUHU=false
+export VELOX_GATEWAY=false
+export VELOX_PORTAL=false
+export VELOX_WEBHOOK=false
+export VELOX_NATS=true
+
+# Your IBM w3 email
+export VELOX_W3_EMAIL=your.name@ibm.com
+
+# ── Credentials (never share these) ───────────────────────────────────────────
+
+# Artifactory API key — generate at https://na.artifactory.swg-devops.com/
+export VELOX_ARTIFACTORY_KEY=your_artifactory_key_here
+
+# ── Local services ─────────────────────────────────────────────────────────────
+
+export MAIL_SERVER_HOST=localhost
+export TEST_LDAP_SERVER=apic.openldap1.fyre.ibm.com
