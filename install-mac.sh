@@ -226,7 +226,20 @@ fi
 brew_cask_install ghostty
 
 # =============================================================
-# 11. POETRY (Python dependency manager — pinned to v1.8.5)
+# 11. AEROSPACE (tiling window manager)
+# Userspace only — no kernel extensions, low risk profile.
+# Mirrors KDE Super+hjkl/workspace bindings via Cmd.
+# =============================================================
+if brew list --cask nikitabobko/tap/aerospace &>/dev/null; then
+  skip "aerospace"
+else
+  log "Installing AeroSpace..."
+  brew install --cask nikitabobko/tap/aerospace
+  ok "aerospace"
+fi
+
+# =============================================================
+# 12. POETRY (Python dependency manager — pinned to v1.8.5)
 # api-assistant explicitly requires Poetry v1 (v2 not yet supported).
 # Pinned via the official installer's POETRY_VERSION env var.
 # =============================================================
@@ -307,8 +320,9 @@ backup_if_real ".config/starship.toml"
 backup_if_real ".config/nvim"
 backup_if_real ".config/ghostty"
 backup_if_real ".tmux.conf"
+backup_if_real ".aerospace.toml"
 
-for mod in shell bash zsh starship nvim tmux ghostty; do
+for mod in shell bash zsh starship nvim tmux ghostty aerospace; do
   stow "$mod" && ok "stowed: $mod"
 done
 
