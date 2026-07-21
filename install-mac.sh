@@ -226,17 +226,13 @@ fi
 brew_cask_install ghostty
 
 # =============================================================
-# 11. AEROSPACE (tiling window manager)
-# Userspace only — no kernel extensions, low risk profile.
-# Mirrors KDE Super+hjkl/workspace bindings via Cmd.
+# 11. WINDOW MANAGEMENT
+# Rectangle — conflict-free window tiling and display moves
+# Hammerspoon — focus shifting between monitors
+# No AeroSpace — macOS modifier conflicts made it unreliable
 # =============================================================
-if brew list --cask nikitabobko/tap/aerospace &>/dev/null; then
-  skip "aerospace"
-else
-  log "Installing AeroSpace..."
-  brew install --cask nikitabobko/tap/aerospace
-  ok "aerospace"
-fi
+brew_cask_install rectangle
+brew_cask_install hammerspoon
 
 # =============================================================
 # 12. POETRY (Python dependency manager — pinned to v1.8.5)
@@ -320,9 +316,9 @@ backup_if_real ".config/starship.toml"
 backup_if_real ".config/nvim"
 backup_if_real ".config/ghostty"
 backup_if_real ".tmux.conf"
-backup_if_real ".aerospace.toml"
+backup_if_real ".hammerspoon/init.lua"
 
-for mod in shell bash zsh starship nvim tmux ghostty aerospace; do
+for mod in shell bash zsh starship nvim tmux ghostty hammerspoon; do
   stow "$mod" && ok "stowed: $mod"
 done
 

@@ -54,6 +54,11 @@ bash install.sh
 - Seamless nvim/tmux pane navigation via `Ctrl+h/j/k/l`
 - Session persistence across reboots (resurrect + continuum)
 
+### Window Management (macOS)
+- **Rectangle** — tiling and display moves: `Ctrl+Opt+←/→/↑/↓` tile, `Ctrl+Opt+Cmd+←/→` move to display
+- **Hammerspoon** — focus shifting between monitors: `Ctrl+Opt+[/]`
+- **macOS native** — switch desktops: `Ctrl+1/2`, lock: `Ctrl+Cmd+Q`
+
 ---
 
 ## CLI tool stack
@@ -112,21 +117,22 @@ Credentials: `postgres` / `password` — local dev only.
 
 ```
 dotfiles-ibm/
-├── shell/      # shared shell layer (exports, paths, aliases, functions, tools, platform)
-├── bash/       # .bashrc, .bash_profile, tmux-sessionizer
-├── zsh/        # .zshrc, .zprofile
-├── starship/   # starship.toml
-├── nvim/       # full Neovim config (lazy.nvim, LSP, DAP, treesitter)
-├── tmux/       # .tmux.conf (TPM, catppuccin statusbar, sessionizer binding)
-├── ghostty/    # ghostty terminal config + catppuccin-mocha theme
-├── install.sh      # Linux bootstrap (Fedora / Arch)
-└── install-mac.sh  # macOS bootstrap
+├── shell/        # shared shell layer (exports, paths, aliases, functions, tools, platform)
+├── bash/         # .bashrc, .bash_profile, tmux-sessionizer
+├── zsh/          # .zshrc, .zprofile
+├── starship/     # starship.toml
+├── nvim/         # full Neovim config (lazy.nvim, LSP, DAP, treesitter)
+├── tmux/         # .tmux.conf (TPM, catppuccin statusbar, sessionizer binding)
+├── ghostty/      # ghostty terminal config + catppuccin-mocha theme
+├── hammerspoon/  # ~/.hammerspoon/init.lua — focus shifting between monitors
+├── install.sh        # Linux bootstrap (Fedora / Arch)
+└── install-mac.sh    # macOS bootstrap
 ```
 
 To restow after pulling changes:
 ```bash
 cd ~/dotfiles-ibm
-stow -R shell bash zsh starship nvim tmux ghostty
+stow -R shell bash zsh starship nvim tmux ghostty hammerspoon
 ```
 
 ---
