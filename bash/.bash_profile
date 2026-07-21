@@ -9,3 +9,7 @@ unset _shell_config_dir
 
 # Source .bashrc for interactive sessions (login shells don't do this automatically)
 [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/al-ameenadedeji/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
