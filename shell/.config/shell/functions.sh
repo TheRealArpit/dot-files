@@ -12,13 +12,21 @@
 #
 ta() {
   if [ "${1}" = "-s" ] || [ "${1}" = "--sessions" ]; then
+    # Sessions-only mode — fzf over active sessions, attach on select.
+    # Works from inside or outside tmux.
     local session
     session=$(tmux list-sessions -F "#{session_name}: #{session_path}" 2>/dev/null \
       | fzf --prompt="session ❯ " --reverse) || return 0
-    tmux attach -t "${session%%:*}"
+    if [ -n "${TMUX:-}" ]; then
+      tmux switch-client -t "${session%%:*}"
+    else
+      tmux attach -t "${session%%:*}"
+    fi
   elif [ -n "${TMUX:-}" ]; then
+    # Inside tmux — open sessionizer as a floating popup
     tmux display-popup -E -w 55% -h 45% -b rounded -S 'fg=#cba6f7' tmux-sessionizer
   else
-    tmux-sessionizer "$@"
+    # Outside tmux — run sessionizer inline (no extra args passed)
+    tmux-sessionizer
   fi
 }
