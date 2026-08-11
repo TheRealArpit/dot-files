@@ -1,15 +1,39 @@
 # Shared aliases. Keep these Bash/Zsh compatible.
 
+# ── General shell ──────────────────────────────────────────────────────────────
 alias c='clear'
 alias ..='cd ..'
 alias ...='cd ../..'
 
-# --- IBM / velox project navigation ---
+# ── Project navigation ─────────────────────────────────────────────────────────
 alias velox='cd "${VELOX:-$HOME/apic}"'
 alias idig='cd "${VELOX:-$HOME/apic}/idig-broker"'
+alias idig-op='cd "${VELOX:-$HOME/apic}/idig-operator"'
 
-alias t='tmux attach 2>/dev/null || tmux'   # attach to last session or start new
+# ── IDIG operator — build & run ────────────────────────────────────────────────
+# Full local dev sequence: clean → generate → download subsystem-images → install CRDs → build → run.
+# Run from ~/apic/idig-operator with kube-local active.
+alias idig-run='make clean-profiles profile-files-dev product manifests kustomize install build-dev && make WATCH_NAMESPACE=${WATCH_NAMESPACE:-idig-system} OPERATOR_MODE=${OPERATOR_MODE:-idig} ENABLE_WEBHOOKS=false run-only'
 
+# ── IDIG operator — cluster inspection ────────────────────────────────────────
+# kubectl shortcuts scoped to the IDIG namespace.
+alias kn='kubectl -n ${IDIG_NS:-idig-system}'
+alias idig-status='kubectl get idig -n ${IDIG_NS:-idig-system} -o wide'
+alias idig-routes='kubectl get routes -n ${IDIG_NS:-idig-system}'
+alias idig-pods='kubectl get pods -n ${IDIG_NS:-idig-system}'
+alias idig-logs='kubectl logs -n ${IDIG_NS:-idig-system} -l app.kubernetes.io/name=idig-operator -f'
+alias idig-events='kubectl get events -n ${IDIG_NS:-idig-system} --sort-by=.lastTimestamp | tail -20'
+
+# ── Kubernetes — cluster switching ────────────────────────────────────────────
+alias kube-local='unset KUBECONFIG && echo "switched to local (~/.kube/config = rancher-desktop)"'
+alias kube-ocp='export KUBECONFIG=$HOME/Downloads/kubeconfig-ocp.config && echo "switched to OCP cluster (idig-ocp-routes.cp.fyre.ibm.com)"'
+alias kube-team='export KUBECONFIG=$HOME/Downloads/kubeconfig.config && echo "switched to team k8s cluster (fyre-ci vanilla)"'
+alias kube-ctx='kubectl config current-context'
+
+# ── Terminal multiplexer ───────────────────────────────────────────────────────
+alias t='tmux attach 2>/dev/null || tmux'
+
+# ── Git ────────────────────────────────────────────────────────────────────────
 alias gs='git status'
 alias gb='git branch'
 alias ga='git add'
@@ -23,14 +47,17 @@ alias gm='git merge'
 alias grb='git rebase'
 alias gst='git stash'
 alias gstp='git stash pop'
-alias lg='lazygit'
-alias ld='lazydocker'
-alias gl='git log --graph --pretty="%C(yellow)%h%C(auto)%d%C(reset) %s %C(dim)(%cr)%Creset" --abbrev-commit -20'
-alias gla='git log --graph --pretty="%C(yellow)%h%C(auto)%d%C(reset) %s %C(dim)(%cr)%Creset" --abbrev-commit --all'
 alias gd='git diff'
 alias gds='git diff --staged'
+alias gl='git log --graph --pretty="%C(yellow)%h%C(auto)%d%C(reset) %s %C(dim)(%cr)%Creset" --abbrev-commit -20'
+alias gla='git log --graph --pretty="%C(yellow)%h%C(auto)%d%C(reset) %s %C(dim)(%cr)%Creset" --abbrev-commit --all'
 alias gclean='git fetch --prune && git branch --merged main | grep -v "^\*\|main" | xargs -r git branch -d'
 
+# ── TUI tools ─────────────────────────────────────────────────────────────────
+alias lg='lazygit'
+alias ld='lazydocker'
+
+# ── Better CLI tools (conditional) ────────────────────────────────────────────
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --icons=auto --group-directories-first'
   alias ll='eza -la --icons=auto --group-directories-first --git --header'
