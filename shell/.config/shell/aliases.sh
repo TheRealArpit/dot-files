@@ -25,9 +25,17 @@ alias idig-logs='kubectl logs -n ${IDIG_NS:-idig-system} -l app.kubernetes.io/na
 alias idig-events='kubectl get events -n ${IDIG_NS:-idig-system} --sort-by=.lastTimestamp | tail -20'
 
 # ── Kubernetes — cluster switching ────────────────────────────────────────────
-alias kube-local='unset KUBECONFIG && echo "switched to local (~/.kube/config = rancher-desktop)"'
-alias kube-ocp='export KUBECONFIG=$HOME/Downloads/kubeconfig-ocp.config && echo "switched to OCP cluster (idig-ocp-routes.cp.fyre.ibm.com)"'
-alias kube-team='export KUBECONFIG=$HOME/Downloads/kubeconfig.config && echo "switched to team k8s cluster (fyre-ci vanilla)"'
+# Functions (not aliases) so that export + kubectl context-use both take effect
+# in the current shell session.
+kube-local() {
+  unset KUBECONFIG
+  kubectl config use-context rancher-desktop 2>/dev/null
+  echo "✔ switched to local (rancher-desktop)"
+}
+kube-stack() {
+  export KUBECONFIG="$HOME/Downloads/kubeconfig.config"
+  echo "✔ switched to stack cluster ($HOME/Downloads/kubeconfig.config)"
+}
 alias kube-ctx='kubectl config current-context'
 
 # ── Terminal multiplexer ───────────────────────────────────────────────────────

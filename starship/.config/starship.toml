@@ -10,7 +10,8 @@ $cmd_duration$status\
 (  $python)\
 (  $nodejs)\
 (  $rust)\
-(  $docker_context)
+(  $docker_context)\
+( $kubernetes)
 $character"""
 add_newline = true
 
@@ -105,6 +106,19 @@ format          = '[$context]($style)'
 style           = '#89b4fa'
 only_with_files = true
 detect_files    = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+# ─── Kubernetes ───────────────────────────────────────
+# Shows current context + namespace.
+# rancher-desktop (local default) is suppressed — module only lights up
+# when kube-stack is active and pointing at a real cluster.
+[kubernetes]
+disabled = false
+format   = '[$context( \($namespace\))]($style)'
+style    = '#89dceb'
+
+[[kubernetes.contexts]]
+context_pattern = 'rancher-desktop'
+context_alias   = ''
 
 # ─── Character ────────────────────────────────────────
 [character]
