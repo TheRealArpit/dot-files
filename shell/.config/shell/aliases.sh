@@ -39,7 +39,12 @@ kube-stack() {
 alias kube-ctx='kubectl config current-context'
 
 # ── Terminal multiplexer ───────────────────────────────────────────────────────
-alias t='tmux attach 2>/dev/null || tmux'
+# t    — attach to last session, or start a new one
+# tls  — list all running sessions
+# tk   — kill a named session: tk [name]  (see functions.sh)
+# tnew — create a new named session: tnew <name>  (see functions.sh)
+alias t='tmux attach 2>/dev/null && echo "✔ attached to last session" || { tmux && echo "✔ started new tmux session"; }'
+alias tls='tmux list-sessions 2>/dev/null || echo "no tmux sessions running"'
 
 # ── Git ────────────────────────────────────────────────────────────────────────
 alias gs='git status'

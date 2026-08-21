@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================
 # tmux-sessionizer
-# Inspired by ThePrimeagen — per-project tmux session switching.
+# Based on ThePrimeagen's tmux-sessionizer — per-project tmux session switching.
 #
 # Usage:
 #   tmux-sessionizer            — fzf picker over project dirs
@@ -17,22 +17,32 @@
 # existing sessions → always appear so you can jump back to open work
 # To add more roots, extend the find command below.
 
+# ── Dir list — single source of truth ────────────────────────
+_sessionizer_dirs() {
+    {
+        echo "$HOME/dotfiles-ibm"
+        tmux list-sessions -F "#{session_path}" 2>/dev/null
+        find "${VELOX:-$HOME/apic}" \
+            -mindepth 1 -maxdepth 1 \
+            -type d \
+            2>/dev/null
+    } | sort -u
+}
+
+# ── --pick: print selected path only, no session created ─────
+# Used by tnew in functions.sh to reuse this dir list.
+if [[ "${1}" == "--pick" ]]; then
+    _sessionizer_dirs | fzf --prompt="dir ❯ " --reverse
+    exit 0
+fi
+
 # ── If a path was given as an argument, skip fzf ─────────────
 if [[ $# -eq 1 ]]; then
     selected="$1"
 else
     selected=$(
-        {
-            echo "$HOME/dotfiles-ibm"
-            tmux list-sessions -F "#{session_path}" 2>/dev/null
-            find "${VELOX:-$HOME/apic}" \
-                -mindepth 1 -maxdepth 1 \
-                -type d \
-                2>/dev/null
-        } \
-        | sort -u \
-        | fzf --prompt="❯ " --reverse
-        )
+        _sessionizer_dirs | fzf --prompt="❯ " --reverse
+    )
 fi
 
 # Nothing selected (user pressed Esc) — exit silently
