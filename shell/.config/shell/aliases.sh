@@ -9,7 +9,7 @@ alias caf='caffeinate -d'
 
 # ── Project navigation ─────────────────────────────────────────────────────────
 alias velox='cd "${VELOX:-$HOME/apic}"'
-alias idig='cd "${VELOX:-$HOME/apic}/idig-broker"'
+alias idig-br='cd "${VELOX:-$HOME/apic}/idig-broker"'
 alias idig-op='cd "${VELOX:-$HOME/apic}/idig-operator"'
 
 # ── IDIG operator — build & run ────────────────────────────────────────────────

@@ -1,41 +1,30 @@
 # Git Aliases Quick Reference
 
-## Status & Changes
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `gs` | `git status` | Show working tree status |
-| `gd` | `git diff` | Diff of unstaged changes |
-| `gds` | `git diff --staged` | Diff of staged changes |
-| `gl` | `git log --graph ... -20` | Compact colorized commit graph (last 20) |
-| `gla` | `git log --graph ... --all` | Full colorized commit graph across all branches |
+── Status & Staging ──────────────────────────────────────────────
+  `gs`                git status
+  `gd`                git diff (unstaged changes)
+  `gds`               git diff --staged
+  `ga .`              git add all changes
+  `ga <file>`         git add specific file
+  `gc "message"`      git commit -m "message"
 
-## Staging & Commits
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `ga` | `git add` | Stage files (`ga .` or `ga <file>`) |
-| `gc` | `git commit -m` | Commit with message (`gc "commit msg"`) |
+── Branching & Switching ─────────────────────────────────────────
+  `gb`                git branch (list local branches)
+  `gco <branch>`      git checkout <branch>
+  `gcb <branch>`      git checkout -b <branch> (create and switch)
+  `gcl <url>`         git clone <url>
+  `gm <branch>`       git merge <branch>
+  `grb <branch>`      git rebase <branch>
+  `gclean`            Prune local branches merged into main
 
-## Branching & Switching
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `gb` | `git branch` | List local branches |
-| `gco` | `git checkout` | Switch branch or checkout files |
-| `gcb` | `git checkout -b` | Create and switch to new branch |
-| `gcl` | `git clone` | Clone a repository |
-| `gm` | `git merge` | Merge specified branch |
-| `grb` | `git rebase` | Rebase onto specified branch |
-| `gclean` | Prune merged | Fetch and delete local branches merged into main |
+── Remote Sync ───────────────────────────────────────────────────
+  `gp`                git push origin <current-branch>
+  `gpl`               git pull
+  `gf`                git fetch --all --prune
 
-## Remote Sync
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `gp` | `git push` | Push commits to origin |
-| `gpl` | `git pull` | Pull latest commits from upstream |
-| `gf` | `git fetch` | Fetch remote refs |
-
-## Stash & TUI
-| Alias | Command | Description |
-| :--- | :--- | :--- |
-| `gst` | `git stash` | Stash modified tracked files |
-| `gstp` | `git stash pop` | Pop latest stash onto working tree |
-| `lg` | `lazygit` | Launch terminal UI for Git |
+── Stash & Logs ──────────────────────────────────────────────────
+  `gst`               git stash
+  `gstp`              git stash pop
+  `gl`                Compact colorized commit log graph (last 20)
+  `gla`               Full commit log graph across all branches
+  `lg`                Open Lazygit terminal UI

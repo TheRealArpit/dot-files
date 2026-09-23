@@ -1,45 +1,36 @@
 # Tmux Quick Reference
+# Prefix is Ctrl + A (<prefix>)
 
-## Prefix Key
-- `Ctrl + a` is `<prefix>`
-- `Ctrl + a` then `Ctrl + a` sends literal `Ctrl + a` to inner program
+── Panes ─────────────────────────────────────────────────────────
+  `<prefix> |`        Vertical split (side-by-side, keeps current dir)
+  `<prefix> -`        Horizontal split (top-and-bottom, keeps current dir)
+  `Ctrl + h/j/k/l`    Navigate panes seamlessly (nvim-aware, no prefix)
+  `<prefix> H/J/K/L`  Resize active pane 5 cells in direction (repeatable within 700ms)
+  `Ctrl + d`          Exit shell / close pane gracefully
+  `<prefix> x`        Force kill pane immediately (stuck processes)
 
-## Pane Management
-| Keybinding | Action | Description |
-| :--- | :--- | :--- |
-| `<prefix> \|` | Vertical Split | Split current pane side-by-side (keeps current dir) |
-| `<prefix> -` | Horizontal Split | Split current pane top-and-bottom (keeps current dir) |
-| `Ctrl + h/j/k/l` | Navigate Panes | Smart navigation across Tmux panes & Neovim splits (no prefix) |
-| `<prefix> H/J/K/L` | Resize Pane | Expand / shrink active pane by 5 cells (repeatable: tap H/J/K/L repeatedly) |
-| `Ctrl + d` | Close Pane | Cleanly exit shell and close pane |
-| `<prefix> x` | Kill Pane | Force terminate pane immediately (no confirmation) |
+── Windows ───────────────────────────────────────────────────────
+  `<prefix> c`        Create new window tab (keeps current dir)
+  `<prefix> ,`        Rename active window
+  `<prefix> [`        Previous window tab
+  `<prefix> ]`        Next window tab
+  `<prefix> X`        Kill active window tab (no confirmation)
 
-## Window Management
-| Keybinding | Action | Description |
-| :--- | :--- | :--- |
-| `<prefix> c` | New Window | Create new window tab (keeps current dir) |
-| `<prefix> ,` | Rename Window | Rename the active window |
-| `<prefix> [` | Previous Window | Switch to left window tab |
-| `<prefix> ]` | Next Window | Switch to right window tab |
-| `<prefix> X` | Kill Window | Close active window tab (no confirmation) |
+── Sessions ──────────────────────────────────────────────────────
+  `t`                 Attach to last active session or start a new one
+  `tls`               List all running tmux sessions
+  `ta`                Fzf picker across active sessions + project directories
+  `ta -s`             Fzf picker across active sessions only
+  `tnew <name>`       Create named session in selected project directory
+  `tk [name]`         Kill session (updates resurrect snapshot)
+  `<prefix> f`        Open floating sessionizer popup inside tmux
+  `<prefix> s`        Visual interactive tree switcher
+  `<prefix> d`        Detach from session (leaves it running)
+  `<prefix> Ctrl+s`   Save tmux session snapshot manually
+  `<prefix> Ctrl+r`   Restore tmux session snapshot manually
 
-## Sessions & Navigation
-| Command / Key | Action | Description |
-| :--- | :--- | :--- |
-| `t` | Quick Attach | Attach to last active session or start a new one |
-| `tls` | List Sessions | List all running tmux sessions |
-| `ta` | Session Manager | Fzf picker across active sessions + project directories |
-| `ta -s` | Sessions Only | Fzf picker across active sessions only |
-| `tnew <name>` | Named Session | Create session with name in selected project dir |
-| `tk [name]` | Kill Session | Terminate session and update resurrect snapshot |
-| `<prefix> f` | Sessionizer Popup | Open floating sessionizer menu inside tmux |
-| `<prefix> s` | Interactive Tree | Visual tree switcher for all windows/sessions |
-| `<prefix> d` | Detach | Detach from session (leaves it running in background) |
-
-## Copy Mode (Vi Keys)
-| Keybinding | Action | Description |
-| :--- | :--- | :--- |
-| `<prefix> Enter` | Enter Copy Mode | Enter scrollback copy mode |
-| `v` | Begin Selection | Start highlighting text |
-| `y` | Yank / Copy | Copy highlighted selection to system clipboard (`pbcopy`) |
-| `Escape` | Cancel | Exit copy mode |
+── Copy Mode (Vi Keys) ───────────────────────────────────────────
+  `<prefix> Enter`    Enter copy / scrollback mode
+  `v`                 Begin visual selection
+  `y`                 Yank / copy selection to system clipboard (pbcopy)
+  `Escape`            Cancel / exit copy mode

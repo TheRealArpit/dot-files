@@ -24,7 +24,10 @@ dothelp() {
       chosen=$(command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; \
         | command fzf --prompt="dothelp ❯ " \
                       --reverse \
-                      --preview="command -v bat >/dev/null && bat --style=plain --color=always $doc_dir/{}.md || cat $doc_dir/{}.md") || return 0
+                      --height=70% \
+                      --preview-window="right:65%:wrap" \
+                      --bind="ctrl-d:preview-down,ctrl-u:preview-up" \
+                      --preview="command -v bat >/dev/null && bat --style=plain --color=always --paging=never --language=markdown $doc_dir/{}.md || cat $doc_dir/{}.md") || return 0
       [[ -n "$chosen" ]] && dothelp "$chosen"
       return 0
     else
@@ -38,7 +41,10 @@ dothelp() {
   local target="$doc_dir/${topic}.md"
   if [[ -f "$target" ]]; then
     if command -v bat >/dev/null 2>&1; then
-      bat --style=grid --color=always --paging=never --language=markdown "$target"
+      # Paged with bat (auto-pages if longer than screen, press 'q' to quit, supports j/k/scroll)
+      bat --style=plain --color=always --paging=auto --language=markdown "$target"
+    elif command -v less >/dev/null 2>&1; then
+      less -RFX "$target"
     else
       cat "$target"
     fi

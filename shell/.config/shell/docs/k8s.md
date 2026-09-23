@@ -1,23 +1,17 @@
 # Kubernetes & Fyre Quick Reference
 
-## Cluster Switching
-| Function / Alias | Description |
-| :--- | :--- |
-| `kube-local` | Unsets `KUBECONFIG` and switches context to local (`rancher-desktop`) |
-| `kube-stack` | Exports `KUBECONFIG="$HOME/Downloads/kubeconfig.config"` (stack cluster) |
-| `kube-ctx` | Prints current active kubectl context |
+── Cluster Switching ─────────────────────────────────────────────
+  `kube-local`        Switch context to local rancher-desktop
+  `kube-stack`        Switch KUBECONFIG to stack cluster (~/Downloads/kubeconfig.config)
+  `kube-ctx`          Print active kubectl context
 
-## IDIG Operator Helpers
-| Alias | Command / Description |
-| :--- | :--- |
-| `kn` | `kubectl -n idig-system` (scoped command runner) |
-| `idig-status` | `kubectl get idig -n idig-system -o wide` |
-| `idig-pods` | `kubectl get pods -n idig-system` |
-| `idig-logs` | Stream logs for idig-operator deployment |
-| `idig-events` | Tail last 20 events in idig namespace |
-| `idig-run` | Full local dev clean, generate, CRD install, build, and run sequence |
+── IDIG Operator ─────────────────────────────────────────────────
+  `kn <cmd>`          Run kubectl command scoped to idig-system namespace
+  `idig-status`       Get IDIG CR status (-o wide)
+  `idig-pods`         List all pods in idig-system
+  `idig-logs`         Stream logs for idig-operator
+  `idig-events`       Tail last 20 events in idig-system
+  `idig-run`          Run full clean, manifest generate, CRD install & dev operator
 
-## Fyre Cluster Management
-| Function | Description |
-| :--- | :--- |
-| `fyre-create <name>` | Spin up 3-node k8s 1.33 SVL cluster with gateway API & registry credentials |
+── Fyre Cloud ────────────────────────────────────────────────────
+  `fyre-create <n>`   Spin up 3-node SVL k8s cluster with gateway API
