@@ -13,6 +13,11 @@ vim.g.maplocalleader = " "
 -- clear search highlight
 map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
+-- toggle 80/100 char column guide
+map("n", "<leader>tc", function()
+  vim.opt.colorcolumn = vim.opt.colorcolumn:get()[1] and "" or "80"
+end, { desc = "Toggle colorcolumn ruler" })
+
 -- save and quit
 map("n", "<leader>w", "<cmd>w<CR>",  { desc = "Save file" })
 map("n", "<leader>q", "<cmd>q<CR>",  { desc = "Quit" })

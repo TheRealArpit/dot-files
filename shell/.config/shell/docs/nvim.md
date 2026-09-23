@@ -11,6 +11,7 @@
 | `S` | Flash Treesitter | Select treesitter syntax nodes visually |
 | `<S-l>` / `<S-h>` | Next / Prev Buffer | Switch active buffers |
 | `<leader>bd` | Close Buffer | Delete current buffer without closing split |
+| `<leader>tc` | Toggle Ruler | Toggle 80-char column guideline on/off |
 | `Ctrl + h/j/k/l` | Navigate Splits | Seamless navigation across Neovim splits AND Tmux panes |
 
 ## Harpoon 2 (Hot Project Files)

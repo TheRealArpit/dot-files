@@ -28,7 +28,7 @@ opt.cursorline     = true
 opt.scrolloff      = 8
 opt.sidescrolloff  = 8
 opt.wrap           = false
-opt.colorcolumn    = "80"
+opt.colorcolumn    = ""     -- disabled by default; conform/prettier/ruff format to team line length
 
 -- splits
 opt.splitright     = true
