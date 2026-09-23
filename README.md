@@ -34,7 +34,9 @@ bash install.sh
 - zoxide for smart directory jumping (`z` instead of `cd`)
 - vivid for Catppuccin Mocha `LS_COLORS`
 - NVM sourced at shell start
-- **tmux-sessionizer** — `Ctrl+F` / `ta` — fzf over project dirs, create/switch named sessions
+- **tmux-sessionizer** — `<prefix> f` / `ta` — fzf over project dirs, create/switch named sessions
+- **dothelp** — interactive cheatsheet system (`dothelp`, `dothelp nvim`, `dothelp tmux`, etc.)
+- **Shell aliases** — `reload` (re-exec shell), `caf` (caffeinate), `gcl` (clone), `gstp` (stash pop)
 
 ### Prompt — Starship
 - Two-line layout with Catppuccin Mocha palette
@@ -52,6 +54,7 @@ bash install.sh
 - Prefix: `Ctrl+A`
 - TPM plugin manager with: sensible, resurrect, continuum, yank
 - Seamless nvim/tmux pane navigation via `Ctrl+h/j/k/l`
+- Repeatable pane resizing via `<prefix> H/J/K/L` (700ms window)
 - Session persistence across reboots (resurrect + continuum)
 
 ### Window Management (macOS)
