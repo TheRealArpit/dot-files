@@ -6,6 +6,7 @@
 -- =============================================================
 
 local function focusMonitor(screen)
+  if not screen then return end
   -- Find the frontmost window on the target screen and focus it.
   -- If there are no windows there, just warp the mouse so the
   -- screen becomes active for clicks.
@@ -28,10 +29,17 @@ local function currentScreen()
   return hs.screen.mainScreen()
 end
 
-hs.hotkey.bind({'ctrl', 'alt'}, ']', function()
-  focusMonitor(currentScreen():next())
+-- Physical spatial focus:
+-- Ctrl+Opt+[ -> focus monitor to the West (Left)
+-- Ctrl+Opt+] -> focus monitor to the East (Right)
+hs.hotkey.bind({'ctrl', 'alt'}, '[', function()
+  local cur = currentScreen()
+  local target = cur:toWest() or cur:previous()
+  focusMonitor(target)
 end)
 
-hs.hotkey.bind({'ctrl', 'alt'}, '[', function()
-  focusMonitor(currentScreen():previous())
+hs.hotkey.bind({'ctrl', 'alt'}, ']', function()
+  local cur = currentScreen()
+  local target = cur:toEast() or cur:next()
+  focusMonitor(target)
 end)

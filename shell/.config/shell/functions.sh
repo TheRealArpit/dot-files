@@ -1,5 +1,81 @@
 # Shared shell functions.
 
+# ── dothelp — interactive/direct cheatsheet viewer ────────────────────────────
+#
+#   dothelp          interactive fzf cheatsheet picker with live preview
+#   dothelp nvim     show Neovim & Bob 2.0 shortcuts (Harpoon, Oil, Flash, LSP)
+#   dothelp tmux     show Tmux pane/window/session hotkeys
+#   dothelp git      show Git aliases and workflows
+#   dothelp k8s      show Kubernetes & Fyre cluster helpers
+#
+dothelp() {
+  local doc_dir="${XDG_CONFIG_HOME:-$HOME/.config}/shell/docs"
+  local topic="${1:-}"
+
+  # Fallback if running directly from repo path before symlink/stow
+  if [[ ! -d "$doc_dir" ]]; then
+    local repo_docs="${DOTFILES_DIR:-$HOME/dotfiles-ibm}/shell/.config/shell/docs"
+    [[ -d "$repo_docs" ]] && doc_dir="$repo_docs"
+  fi
+
+  if [[ -z "$topic" ]]; then
+    if command -v fzf >/dev/null 2>&1; then
+      local chosen
+      chosen=$(command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; \
+        | command fzf --prompt="dothelp ❯ " \
+                      --reverse \
+                      --preview="command -v bat >/dev/null && bat --style=plain --color=always $doc_dir/{}.md || cat $doc_dir/{}.md") || return 0
+      [[ -n "$chosen" ]] && dothelp "$chosen"
+      return 0
+    else
+      echo "Usage: dothelp <topic>"
+      echo "Available topics:"
+      command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; | sed 's/^/  • /'
+      return 0
+    fi
+  fi
+
+  local target="$doc_dir/${topic}.md"
+  if [[ -f "$target" ]]; then
+    if command -v bat >/dev/null 2>&1; then
+      bat --style=grid --color=always --paging=never --language=markdown "$target"
+    else
+      cat "$target"
+    fi
+  else
+    echo "✖ No cheatsheet found for '$topic'."
+    echo "Available topics:"
+    command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; | sed 's/^/  • /'
+  fi
+}
+
+# ── Kubernetes — cluster switching ────────────────────────────────────────────
+kube-local() {
+  unset KUBECONFIG
+  kubectl config use-context rancher-desktop 2>/dev/null
+  echo "✔ switched to local (rancher-desktop)"
+}
+
+kube-stack() {
+  export KUBECONFIG="$HOME/Downloads/kubeconfig.config"
+  echo "✔ switched to stack cluster ($HOME/Downloads/kubeconfig.config)"
+}
+
+# ── Fyre ───────────────────────────────────────────────────────────────────────
+fyre-create() {
+  local cluster_name="${1:-${FYRE_CLUSTER_NAME:-testing-stack-name}}"
+  fyre create 3 43 16 -K \
+    -c "$cluster_name" \
+    --registry-secret ~/.config/fyre/registry-info.yaml \
+    --k8s-version 1.33 \
+    --base-os ubuntu \
+    --gateway-api \
+    --username "${FYRE_USERNAME:-$FYRE_USER_NAME}" \
+    --key "${FYRE_APIKEY:-$FYRE_API_KEY}" \
+    --site svl "${@:2}"
+}
+
+# ── Tmux ───────────────────────────────────────────────────────────────────────
 # ta — tmux session manager.
 #
 #   ta          fzf over active sessions + project dirs — create or switch.
@@ -55,61 +131,9 @@ tk() {
     && echo "✔ snapshot updated"
 }
 
-# tmux-help — print all custom tmux commands and key bindings
+# tmux-help — alias to view tmux cheatsheet
 tmux-help() {
-  cat <<'EOF'
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  tmux cheatsheet — alameen-adedeji
-  prefix = Ctrl+A
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-SHELL COMMANDS
-  t               attach to last session, or start a new one
-  tls             list all running sessions
-  ta              fzf picker — create or switch to a session (project dirs + active sessions)
-  ta -s           fzf picker — active sessions only
-  tnew <name>     create a new named session via dir picker (errors if name exists)
-  tk [name]       kill session (defaults to current) — confirms before killing, saves snapshot
-
-SESSION LIFECYCLE
-  Sessions are auto-saved every 15 min by tmux-continuum.
-  Restore happens once on tmux server start (after reboot).
-  tk always updates the snapshot so killed sessions are never restored.
-  To recover an accidentally killed session:
-    1.  ls -lt ~/.local/share/tmux/resurrect/   ← find snapshot before the kill
-    2.  ln -sf <snapshot> ~/.local/share/tmux/resurrect/last
-    3.  prefix + Ctrl+r                          ← restore
-
-KEY BINDINGS — SESSIONS
-  prefix + d      detach from current session (leaves it running)
-  prefix + s      visual session tree switcher
-  prefix + f      floating sessionizer popup (same as ta, inside tmux)
-  prefix + $      rename current session
-  prefix + Ctrl+s force-save snapshot now
-  prefix + Ctrl+r restore from snapshot
-
-KEY BINDINGS — WINDOWS
-  prefix + c      new window (inherits current dir)
-  prefix + ,      rename current window
-  prefix + [      previous window
-  prefix + ]      next window
-  prefix + X      kill window (no confirmation)
-
-KEY BINDINGS — PANES
-  prefix + |      split vertical
-  prefix + -      split horizontal
-  prefix + h/j/k/l  navigate panes (vim-style)
-  C-h/j/k/l       navigate panes without prefix (vim-tmux-navigator aware)
-  prefix + R      enter resize mode, then H/J/K/L to resize, Esc to exit
-  prefix + x      kill pane (no confirmation)
-
-KEY BINDINGS — COPY MODE
-  prefix + Enter  enter copy mode
-  v               start visual selection
-  y               yank selection to clipboard (pbcopy) and exit
-  Escape          cancel copy mode
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-EOF
+  dothelp tmux
 }
 
 # tnew — create a new named tmux session in a directory chosen via the sessionizer picker.

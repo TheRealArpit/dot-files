@@ -4,6 +4,8 @@
 alias c='clear'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias reload='exec "$SHELL"'
+alias caf='caffeinate -d'
 
 # ── Project navigation ─────────────────────────────────────────────────────────
 alias velox='cd "${VELOX:-$HOME/apic}"'
@@ -19,23 +21,11 @@ alias idig-run='make clean-profiles profile-files-dev product manifests kustomiz
 # kubectl shortcuts scoped to the IDIG namespace.
 alias kn='kubectl -n ${IDIG_NS:-idig-system}'
 alias idig-status='kubectl get idig -n ${IDIG_NS:-idig-system} -o wide'
-alias idig-routes='kubectl get routes -n ${IDIG_NS:-idig-system}'
 alias idig-pods='kubectl get pods -n ${IDIG_NS:-idig-system}'
 alias idig-logs='kubectl logs -n ${IDIG_NS:-idig-system} -l app.kubernetes.io/name=idig-operator -f'
 alias idig-events='kubectl get events -n ${IDIG_NS:-idig-system} --sort-by=.lastTimestamp | tail -20'
 
-# ── Kubernetes — cluster switching ────────────────────────────────────────────
-# Functions (not aliases) so that export + kubectl context-use both take effect
-# in the current shell session.
-kube-local() {
-  unset KUBECONFIG
-  kubectl config use-context rancher-desktop 2>/dev/null
-  echo "✔ switched to local (rancher-desktop)"
-}
-kube-stack() {
-  export KUBECONFIG="$HOME/Downloads/kubeconfig.config"
-  echo "✔ switched to stack cluster ($HOME/Downloads/kubeconfig.config)"
-}
+# ── Kubernetes ────────────────────────────────────────────────────────────────
 alias kube-ctx='kubectl config current-context'
 
 # ── Terminal multiplexer ───────────────────────────────────────────────────────
@@ -54,6 +44,7 @@ alias gc='git commit -m'
 alias gp='git push'
 alias gpl='git pull'
 alias gf='git fetch'
+alias gcl='git clone'
 alias gco='git checkout'
 alias gcb='git checkout -b'
 alias gm='git merge'
