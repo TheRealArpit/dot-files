@@ -16,10 +16,11 @@ return {
     config = function()
       require("mason-tool-installer").setup({
         ensure_installed = {
-          "stylua",    -- Lua formatter
-          "ruff",      -- Python linter + formatter (replaces black/flake8)
-          "prettier",  -- JS / TS / JSON / YAML / HTML / CSS / Markdown
-          "shfmt",     -- Shell formatter
+          "stylua",      -- Lua formatter
+          "ruff",        -- Python linter + formatter (replaces black/flake8)
+          "prettier",    -- JS / TS / JSON / YAML / HTML / CSS / Markdown
+          "shfmt",       -- Shell formatter
+          "shellcheck",  -- Shell static analysis
         },
         auto_update    = false,
         run_on_start   = true,
@@ -50,12 +51,20 @@ return {
           javascriptreact = { "prettier" },
           json            = { "prettier" },
           yaml            = { "prettier" },
+          -- extensionless files (e.g. ~/.kube/config) — skip prettier, use LSP only
+          [""] = {},
           markdown        = { "prettier" },
           html            = { "prettier" },
           css             = { "prettier" },
           sh              = { "shfmt" },
+          bash            = { "shfmt" },
           -- anything else falls back to LSP
           ["_"]           = { "trim_whitespace" },
+        },
+        formatters = {
+          shfmt = {
+            prepend_args = { "-ln", "bash", "-i", "2" },
+          },
         },
         format_on_save = {
           timeout_ms   = 1500,
@@ -73,6 +82,8 @@ return {
       local lint = require("lint")
       lint.linters_by_ft = {
         python          = { "ruff" },
+        sh              = { "shellcheck" },
+        bash            = { "shellcheck" },
         -- eslint_d for JS/TS (install: npm i -g eslint_d)
         -- uncomment when you have an eslint config in your project
         -- typescript      = { "eslint_d" },

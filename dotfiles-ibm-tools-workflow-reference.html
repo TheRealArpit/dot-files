@@ -1,0 +1,358 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>dotfiles-ibm — Tools &amp; Workflow Reference</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 40px 20px 60px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 36px; }
+  h2 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #57606a;
+    margin: 36px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  h3 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; }
+
+  /* cards grid */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .card-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .card-sub { font-size: 12px; color: #57606a; margin-bottom: 8px; }
+  .card ul { padding-left: 16px; }
+  .card ul li { font-size: 13px; margin-bottom: 3px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f7f8fa; }
+  th { text-align: left; padding: 7px 10px; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
+  td { padding: 7px 10px; border-bottom: 1px solid #f0f1f3; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  /* kbd */
+  kbd {
+    display: inline-block;
+    background: #f7f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 11.5px;
+    white-space: nowrap;
+    color: #1f2328;
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #3b82d4;
+  }
+
+  /* highlight row */
+  .hi td { background: #f0f6ff; }
+
+  /* workflow section */
+  .workflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .wf-block {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .wf-block h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: #3b82d4; text-transform: uppercase; letter-spacing: 0.05em; }
+  .wf-block table { font-size: 12.5px; }
+  .wf-block td { padding: 5px 8px; }
+  .wf-block th { padding: 5px 8px; font-size: 12px; }
+
+  .tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+  .tag.green { background: #dcfce7; color: #166534; }
+  .tag.purple { background: #ede9fe; color: #5b21b6; }
+
+  footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>dotfiles-ibm — Tools &amp; Workflow Reference</h1>
+  <p class="subtitle">IBM API Connect engineering environment · macOS + Linux (Fedora / Arch) · managed with GNU Stow</p>
+
+  
+  <h2>CLI Tool Stack</h2>
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>Replaces</th><th>What it does</th><th>Key usage</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hi"><td><code>eza</code></td><td><code>ls</code></td><td>File listing with icons, git status, directory-first sorting</td><td><code>eza -la --git</code></td></tr>
+      <tr><td><code>bat</code></td><td><code>cat</code></td><td>Syntax-highlighted file viewer with line numbers</td><td><code>bat file.ts</code></td></tr>
+      <tr class="hi"><td><code>fd</code></td><td><code>find</code></td><td>Fast file search — respects .gitignore, friendlier syntax</td><td><code>fd pattern</code></td></tr>
+      <tr><td><code>ripgrep</code> (<code>rg</code>)</td><td><code>grep</code></td><td>Blazing fast recursive code search — skips .git, node_modules</td><td><code>rg "function foo"</code></td></tr>
+      <tr class="hi"><td><code>fzf</code></td><td>—</td><td>Fuzzy finder wired to shell shortcuts + bat preview</td><td>See shortcuts below</td></tr>
+      <tr><td><code>zoxide</code> (<code>z</code>)</td><td><code>cd</code></td><td>Smart cd with memory — jumps to frecent directories</td><td><code>z project-name</code></td></tr>
+      <tr class="hi"><td><code>lazygit</code></td><td>—</td><td>Full terminal UI for git — stage, diff, branch, rebase</td><td><code>lazygit</code></td></tr>
+      <tr><td><code>lazydocker</code></td><td>—</td><td>Terminal UI for container/image/log management</td><td><code>lazydocker</code></td></tr>
+      <tr class="hi"><td><code>btop</code></td><td><code>htop</code></td><td>System monitor — CPU, memory, network, disk in one view</td><td><code>btop</code></td></tr>
+      <tr><td><code>jq</code></td><td>—</td><td>Query and transform JSON from the command line</td><td><code>cat file.json | jq '.key'</code></td></tr>
+      <tr class="hi"><td><code>git-delta</code></td><td>—</td><td>Syntax-highlighted diffs with line numbers, wired to git pager</td><td>Auto — runs on every <code>git diff</code></td></tr>
+      <tr><td><code>starship</code></td><td>PS1</td><td>Cross-shell prompt — shows branch, language versions, exit code</td><td>Auto — loads in <code>.bashrc</code> / <code>.zshrc</code></td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>fzf Keyboard Shortcuts</h2>
+  <table>
+    <thead><tr><th>Shortcut</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><kbd>Ctrl+T</kbd></td><td>Fuzzy search files in the current directory — pastes selected path onto the command line. Preview pane shows file via <code>bat</code>.</td></tr>
+      <tr><td><kbd>Ctrl+R</kbd></td><td>Fuzzy search command history — select any previous command to rerun it.</td></tr>
+      <tr class="hi"><td><kbd>Alt+C</kbd></td><td>Fuzzy search directories and <code>cd</code> into the selected one.</td></tr>
+      <tr><td><kbd>↑ / ↓</kbd></td><td>Inside fzf: navigate results. In the prompt: history search filtered to commands starting with what you've typed.</td></tr>
+      <tr class="hi"><td><kbd>Ctrl+F</kbd> / <code>ta</code></td><td>tmux-sessionizer — fzf over project dirs, create or switch named tmux sessions.</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>Neovim — Key Plugins</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">telescope.nvim</div>
+      <div class="card-sub">Fuzzy finder inside Neovim</div>
+      <ul>
+        <li>Find files, grep across project, search buffers</li>
+        <li>Browse git commits, LSP symbols, diagnostics</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">oil.nvim</div>
+      <div class="card-sub">File explorer as a buffer</div>
+      <ul>
+        <li>Edit the filesystem like a text file</li>
+        <li>Rename, move, delete files with normal vim motions</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">harpoon</div>
+      <div class="card-sub">File bookmarking</div>
+      <ul>
+        <li>Pin up to 4 files, jump between them instantly</li>
+        <li>Eliminates buffer hunting in large projects</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">blink.cmp</div>
+      <div class="card-sub">Autocompletion</div>
+      <ul>
+        <li>LSP completions, snippets, path completion</li>
+        <li>Shows type signatures and docs inline</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">LSP (built-in)</div>
+      <div class="card-sub">Language Server Protocol</div>
+      <ul>
+        <li>Go-to definition, find references, hover docs</li>
+        <li>Inline diagnostics (errors, warnings)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">conform.nvim</div>
+      <div class="card-sub">Auto-formatting</div>
+      <ul>
+        <li>Format on save via Prettier, Black, stylua etc.</li>
+        <li>Runs the right formatter per filetype automatically</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">gitsigns.nvim</div>
+      <div class="card-sub">Inline git feedback</div>
+      <ul>
+        <li>Shows added/changed/deleted lines in the gutter</li>
+        <li>Stage hunks, preview diffs without leaving the file</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">DAP (debugger)</div>
+      <div class="card-sub">Python + JS/Node</div>
+      <ul>
+        <li>Breakpoints, step-through, watch variables</li>
+        <li>debugpy for Python, js-debug-adapter for Node</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">nvim-treesitter</div>
+      <div class="card-sub">Syntax + code structure</div>
+      <ul>
+        <li>Accurate syntax highlighting for every language</li>
+        <li>Powers smart text objects and folding</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">which-key.nvim</div>
+      <div class="card-sub">Keybinding discovery</div>
+      <ul>
+        <li>Press <kbd>Space</kbd> and wait — shows all available bindings</li>
+        <li>No need to memorise everything at once</li>
+      </ul>
+    </div>
+  </div>
+
+  
+  <h2>Tmux — Key Bindings</h2>
+  <p style="font-size:13px;color:#57606a;margin-bottom:10px">Prefix is <kbd>Ctrl+A</kbd></p>
+  <table>
+    <thead><tr><th>Shortcut</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><kbd>Ctrl+A</kbd> then <kbd>c</kbd></td><td>New window</td></tr>
+      <tr><td><kbd>Ctrl+A</kbd> then <kbd>%</kbd> / <kbd>"</kbd></td><td>Split pane vertically / horizontally</td></tr>
+      <tr class="hi"><td><kbd>Ctrl+h/j/k/l</kbd></td><td>Move between tmux panes AND Neovim splits seamlessly</td></tr>
+      <tr><td><kbd>Ctrl+A</kbd> then <kbd>d</kbd></td><td>Detach session (keeps everything running)</td></tr>
+      <tr class="hi"><td><kbd>Ctrl+F</kbd> or <code>ta</code></td><td>tmux-sessionizer — fzf project dirs, create/switch sessions</td></tr>
+      <tr><td><kbd>Ctrl+A</kbd> then <kbd>I</kbd></td><td>Install TPM plugins</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:#57606a;margin-top:8px">Sessions persist across reboots via <strong>resurrect</strong> + <strong>continuum</strong> plugins.</p>
+
+  
+  <h2>Window Management (macOS)</h2>
+  <table>
+    <thead><tr><th>Shortcut</th><th>What it does</th><th>App</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td><kbd>Ctrl+Opt+←/→</kbd></td><td>Tile window left / right half</td><td>Rectangle</td></tr>
+      <tr><td><kbd>Ctrl+Opt+↑/↓</kbd></td><td>Maximise / tile bottom half</td><td>Rectangle</td></tr>
+      <tr class="hi"><td><kbd>Ctrl+Opt+Cmd+←/→</kbd></td><td>Move window to next display</td><td>Rectangle</td></tr>
+      <tr><td><kbd>Ctrl+Opt+[/]</kbd></td><td>Focus next / previous monitor</td><td>Hammerspoon</td></tr>
+      <tr class="hi"><td><kbd>Ctrl+1/2</kbd></td><td>Switch desktop spaces</td><td>macOS native</td></tr>
+      <tr><td><kbd>Ctrl+Cmd+Q</kbd></td><td>Lock screen</td><td>macOS native</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>Most Useful for Daily Coding Workflow</h2>
+  <div class="workflow-grid">
+
+    <div class="wf-block">
+      <h4>Finding Files &amp; Code</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Fuzzy find a file</td><td><kbd>Ctrl+T</kbd> in shell</td></tr>
+          <tr><td>Find file in Neovim</td><td><kbd>Space</kbd> → Telescope find</td></tr>
+          <tr><td>Search code content</td><td><code>rg "pattern"</code></td></tr>
+          <tr><td>Search in Neovim</td><td><kbd>Space</kbd> → Telescope grep</td></tr>
+          <tr><td>Find by filename</td><td><code>fd filename</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wf-block">
+      <h4>Navigation</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Jump to frequent dir</td><td><code>z project-name</code></td></tr>
+          <tr><td>Fuzzy jump to dir</td><td><kbd>Alt+C</kbd> in shell</td></tr>
+          <tr><td>Switch tmux project</td><td><kbd>Ctrl+F</kbd> or <code>ta</code></td></tr>
+          <tr><td>Jump to pinned file</td><td>Harpoon in Neovim</td></tr>
+          <tr><td>Browse files</td><td><code>oil.nvim</code> in Neovim</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wf-block">
+      <h4>Git</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Stage, commit, push</td><td><code>lazygit</code></td></tr>
+          <tr><td>See diff in Neovim</td><td>gitsigns — <kbd>Space</kbd> → git hunk preview</td></tr>
+          <tr><td>History search</td><td><kbd>Ctrl+R</kbd> fuzzy over past commands</td></tr>
+          <tr><td>Rich diffs in terminal</td><td><code>git diff</code> — auto-paged via delta</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wf-block">
+      <h4>Editing &amp; Coding</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Autocomplete</td><td>blink.cmp — auto in insert mode</td></tr>
+          <tr><td>Format on save</td><td>conform.nvim — automatic</td></tr>
+          <tr><td>Go to definition</td><td>LSP — <kbd>gd</kbd> in Neovim</td></tr>
+          <tr><td>Discover keybindings</td><td><kbd>Space</kbd> + pause → which-key</td></tr>
+          <tr><td>Debug (Python/Node)</td><td>DAP — set breakpoint, launch</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wf-block">
+      <h4>Containers &amp; Services</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>Manage containers</td><td><code>lazydocker</code></td></tr>
+          <tr><td>Docker CLI</td><td><code>docker …</code> (via Rancher Desktop)</td></tr>
+          <tr><td>Postgres (local dev)</td><td>port 5432, user: postgres / password</td></tr>
+          <tr><td>System resources</td><td><code>btop</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wf-block">
+      <h4>Shell Quality of Life</h4>
+      <table>
+        <thead><tr><th>What</th><th>How</th></tr></thead>
+        <tbody>
+          <tr><td>View a file nicely</td><td><code>bat filename</code></td></tr>
+          <tr><td>List files with git</td><td><code>eza -la --git</code></td></tr>
+          <tr><td>Query JSON</td><td><code>cat f.json | jq '.key'</code></td></tr>
+          <tr><td>Work secrets / env</td><td><code>~/.config/shell/work.sh</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

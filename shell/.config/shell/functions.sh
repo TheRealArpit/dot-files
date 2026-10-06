@@ -14,7 +14,7 @@ dothelp() {
 
   # Fallback if running directly from repo path before symlink/stow
   if [[ ! -d "$doc_dir" ]]; then
-    local repo_docs="${DOTFILES_DIR:-$HOME/dotfiles-ibm}/shell/.config/shell/docs"
+    local repo_docs="${DOTFILES_DIR:-$HOME/Documents/dotfiles-ibm}/shell/.config/shell/docs"
     [[ -d "$repo_docs" ]] && doc_dir="$repo_docs"
   fi
 
@@ -68,6 +68,8 @@ kube-stack() {
 }
 
 # ── Fyre ───────────────────────────────────────────────────────────────────────
+# unalias in case an old alias is still in memory (e.g. from a previous stow)
+unalias fyre-create 2>/dev/null
 fyre-create() {
   local cluster_name="${1:-${FYRE_CLUSTER_NAME:-testing-stack-name}}"
   fyre create 3 43 16 -K \
@@ -82,34 +84,44 @@ fyre-create() {
 }
 
 # ── Tmux ───────────────────────────────────────────────────────────────────────
-# ta — tmux session manager.
+# ta — tmux session manager (names only).
 #
-#   ta          fzf over active sessions + project dirs — create or switch.
-#               Inside tmux: opens as a floating popup.
-#               Outside tmux: takes over the terminal inline.
-#
-#   ta -s       fzf over active sessions only — attach to an existing one.
-#               Useful when you know a session is already running and don't
-#               want project dirs cluttering the list.
+#   ta          fzf over active session names — attach, switch, or create.
+#               If no existing session matches your input, creates a new one.
+#               Inside fzf: press Ctrl+X to kill the highlighted session.
 #
 ta() {
-  if [ "${1}" = "-s" ] || [ "${1}" = "--sessions" ]; then
-    # Sessions-only mode — fzf over active sessions, attach on select.
-    # Works from inside or outside tmux.
-    local session
-    session=$(tmux list-sessions -F "#{session_name}: #{session_path}" 2>/dev/null \
-      | fzf --prompt="session ❯ " --reverse) || return 0
-    if [ -n "${TMUX:-}" ]; then
-      tmux switch-client -t "${session%%:*}"
-    else
-      tmux attach -t "${session%%:*}"
-    fi
-  elif [ -n "${TMUX:-}" ]; then
-    # Inside tmux — open sessionizer as a floating popup
-    tmux display-popup -E -w 55% -h 45% -b rounded -S 'fg=#cba6f7' tmux-sessionizer
+  local query match session code
+  # If a session name is passed directly as an argument, use it
+  if [ -n "${1:-}" ]; then
+    session="$1"
   else
-    # Outside tmux — run sessionizer inline (no extra args passed)
-    tmux-sessionizer
+    local output
+    output=$(tmux list-sessions -F "#{session_name}" 2>/dev/null \
+      | fzf --prompt="session ❯ " --reverse --print-query \
+            --header="^x: kill session" \
+            --bind='ctrl-x:execute(tmux kill-session -t {})+reload(tmux list-sessions -F "#{session_name}" 2>/dev/null)')
+    code=$?
+
+    # fzf returns 130 on Esc/Ctrl-C (cancel)
+    [ "$code" -eq 130 ] && return 0
+
+    query=$(echo "$output" | sed -n '1p')
+    match=$(echo "$output" | sed -n '2p')
+    session="${match:-$query}"
+  fi
+
+  # Clean session name (remove whitespace and special chars)
+  session=$(echo "$session" | tr -cs 'a-zA-Z0-9_-' '_' | sed 's/^_//;s/_$//')
+  [ -z "$session" ] && return 0
+
+  if [ -n "${TMUX:-}" ]; then
+    if ! tmux has-session -t "=$session" 2>/dev/null; then
+      tmux new-session -ds "$session"
+    fi
+    tmux switch-client -t "$session"
+  else
+    tmux new-session -As "$session"
   fi
 }
 
@@ -160,4 +172,14 @@ tnew() {
   tmux new-session -d -s "$name" -c "$dir" \
     && echo "✔ created session '$name' in $dir" \
     && { [ -n "${TMUX:-}" ] && tmux switch-client -t "$name" || tmux attach -t "$name"; }
+}
+
+# explore — cd into a directory and open nvim with oil.nvim
+#
+#   explore ~/apic/idig-broker   open oil in that directory
+#   explore                      open oil in the current directory
+#
+explore() {
+  local target="${1:-.}"
+  cd "$target" && nvim -c "Oil"
 }

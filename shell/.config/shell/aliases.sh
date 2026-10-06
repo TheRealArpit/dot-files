@@ -6,11 +6,17 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias reload='exec "$SHELL"'
 alias caf='caffeinate -d'
+alias bp='nvim ~/.zshrc'
+alias sp='source ~/.zshrc'
+alias k='kubectl'
+alias aliases='grep -E "^alias " ~/.config/shell/aliases.sh | sort'
+alias search='rg --color=always --line-number --smart-case'
 
 # ── Project navigation ─────────────────────────────────────────────────────────
 alias velox='cd "${VELOX:-$HOME/apic}"'
 alias idig-br='cd "${VELOX:-$HOME/apic}/idig-broker"'
 alias idig-op='cd "${VELOX:-$HOME/apic}/idig-operator"'
+alias config='explore "$HOME/Documents/dotfiles-ibm/shell/.config/shell"'
 
 # ── IDIG operator — build & run ────────────────────────────────────────────────
 # Full local dev sequence: clean → generate → download subsystem-images → install CRDs → build → run.

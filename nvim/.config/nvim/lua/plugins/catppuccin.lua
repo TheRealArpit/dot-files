@@ -14,8 +14,12 @@ return {
       transparent_background = false,
       custom_highlights = function(colors)
         return {
-          -- match cmdline row to lualine bar background (mantle)
-          MsgArea = { bg = colors.mantle, fg = colors.subtext1 },
+          Normal      = { bg = "#000000" },
+          NormalNC    = { bg = "#000000" },
+          NormalFloat = { bg = "#000000" },
+          SignColumn  = { bg = "#000000" },
+          -- match cmdline row to black background
+          MsgArea     = { bg = "#000000", fg = colors.subtext1 },
         }
       end,
       integrations = {
@@ -27,6 +31,7 @@ return {
         mason            = true,
         noice            = false,
         trouble          = true,
+        render_markdown  = true,
         indent_blankline = { enabled = true },
         native_lsp = {
           enabled    = true,
