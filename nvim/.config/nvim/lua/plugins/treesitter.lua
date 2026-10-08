@@ -43,45 +43,51 @@ return {
     "nvim-treesitter/nvim-treesitter-textobjects",
     lazy  = false,
     dependencies = { "nvim-treesitter/nvim-treesitter" },
-    opts = {
-      select = {
-        enable    = true,
-        lookahead = true,  -- jump forward to textobject if not on one
-        keymaps = {
-          ["af"] = { query = "@function.outer", desc = "Around function" },
-          ["if"] = { query = "@function.inner", desc = "Inside function" },
-          ["ac"] = { query = "@class.outer",    desc = "Around class" },
-          ["ic"] = { query = "@class.inner",    desc = "Inside class" },
-          ["aa"] = { query = "@parameter.outer", desc = "Around argument" },
-          ["ia"] = { query = "@parameter.inner", desc = "Inside argument" },
-          ["ab"] = { query = "@block.outer",    desc = "Around block" },
-          ["ib"] = { query = "@block.inner",    desc = "Inside block" },
+    config = function()
+      -- main branch: setup() only takes select/move options; keymaps are
+      -- set manually (the old `keymaps` / `goto_*` tables are ignored)
+      require("nvim-treesitter-textobjects").setup({
+        select = {
+          lookahead = true,  -- jump forward to textobject if not on one
+          selection_modes = {
+            ["@function.outer"] = "V",
+            ["@class.outer"]    = "V",
+          },
         },
-        selection_modes = {
-          ["@function.outer"] = "V",
-          ["@class.outer"]    = "V",
-        },
-      },
-      move = {
-        enable    = true,
-        set_jumps = true,  -- add to jumplist so <C-o>/<C-i> works
-        goto_next_start = {
-          ["]f"] = { query = "@function.outer", desc = "Next function start" },
-          ["]c"] = { query = "@class.outer",    desc = "Next class start" },
-        },
-        goto_next_end = {
-          ["]F"] = { query = "@function.outer", desc = "Next function end" },
-          ["]C"] = { query = "@class.outer",    desc = "Next class end" },
-        },
-        goto_previous_start = {
-          ["[f"] = { query = "@function.outer", desc = "Prev function start" },
-          ["[c"] = { query = "@class.outer",    desc = "Prev class start" },
-        },
-        goto_previous_end = {
-          ["[F"] = { query = "@function.outer", desc = "Prev function end" },
-          ["[C"] = { query = "@class.outer",    desc = "Prev class end" },
-        },
-      },
-    },
+        move = { set_jumps = true },  -- add to jumplist so <C-o>/<C-i> works
+      })
+
+      local select = require("nvim-treesitter-textobjects.select")
+      for key, spec in pairs({
+        af = { "@function.outer", "Around function" },
+        ["if"] = { "@function.inner", "Inside function" },
+        ac = { "@class.outer", "Around class" },
+        ic = { "@class.inner", "Inside class" },
+        aa = { "@parameter.outer", "Around argument" },
+        ia = { "@parameter.inner", "Inside argument" },
+        ab = { "@block.outer", "Around block" },
+        ib = { "@block.inner", "Inside block" },
+      }) do
+        vim.keymap.set({ "x", "o" }, key, function()
+          select.select_textobject(spec[1], "textobjects")
+        end, { desc = spec[2] })
+      end
+
+      local move = require("nvim-treesitter-textobjects.move")
+      for key, spec in pairs({
+        ["]f"] = { "goto_next_start", "@function.outer", "Next function start" },
+        ["]c"] = { "goto_next_start", "@class.outer", "Next class start" },
+        ["]F"] = { "goto_next_end", "@function.outer", "Next function end" },
+        ["]C"] = { "goto_next_end", "@class.outer", "Next class end" },
+        ["[f"] = { "goto_previous_start", "@function.outer", "Prev function start" },
+        ["[c"] = { "goto_previous_start", "@class.outer", "Prev class start" },
+        ["[F"] = { "goto_previous_end", "@function.outer", "Prev function end" },
+        ["[C"] = { "goto_previous_end", "@class.outer", "Prev class end" },
+      }) do
+        vim.keymap.set({ "n", "x", "o" }, key, function()
+          move[spec[1]](spec[2], "textobjects")
+        end, { desc = spec[3] })
+      end
+    end,
   },
 }

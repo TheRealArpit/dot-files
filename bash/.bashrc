@@ -6,6 +6,9 @@ case $- in
     *) return ;;
 esac
 
+# Disable flow control freeze (Ctrl+S / Ctrl+Q) so Ctrl+S works as tmux prefix
+[ -t 0 ] && stty -ixon 2>/dev/null
+
 # Bash history and behavior.
 HISTCONTROL=ignoreboth
 shopt -s histappend
@@ -54,5 +57,5 @@ command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/al-ameenadedeji/.rd/bin:$PATH"
+export PATH="/Users/mirdha/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

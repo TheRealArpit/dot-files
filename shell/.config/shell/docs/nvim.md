@@ -36,6 +36,13 @@
   `[d` / `]d`         Jump to previous / next diagnostic error/warning
   `<leader>df`        Show floating diagnostic tooltip at cursor
 
+── File Path Navigation ──────────────────────────────────────────
+  `gf`                Open file path under cursor in current window
+  `gF`                Open file path under cursor, jump to line number
+                      (works on paths like src/foo.ts:42)
+  Note: Cmd+click in Ghostty opens Finder; use gf/gF inside Neovim
+        or `e <path>` from the terminal shell instead.
+
 ── Git & Terminal Integration ────────────────────────────────────
   `<leader>gg`        Open floating Lazygit window ('q' to close)
   `Ctrl + \`          Toggle floating scratch terminal

@@ -8,6 +8,7 @@ alias reload='exec "$SHELL"'
 alias caf='caffeinate -d'
 alias bp='nvim ~/.zshrc'
 alias sp='source ~/.zshrc'
+alias e='nvim'
 alias k='kubectl'
 alias aliases='grep -E "^alias " ~/.config/shell/aliases.sh | sort'
 alias search='rg --color=always --line-number --smart-case'
@@ -24,8 +25,8 @@ alias config='explore "$HOME/Documents/dotfiles-ibm/shell/.config/shell"'
 alias idig-run='make clean-profiles profile-files-dev product manifests kustomize install build-dev && make WATCH_NAMESPACE=${WATCH_NAMESPACE:-idig-system} OPERATOR_MODE=${OPERATOR_MODE:-idig} ENABLE_WEBHOOKS=false run-only'
 
 # ── IDIG operator — cluster inspection ────────────────────────────────────────
-# kubectl shortcuts scoped to the IDIG namespace.
-alias kn='kubectl -n ${IDIG_NS:-idig-system}'
+# kubectl shortcuts scoped to the namespace.
+alias kn='kubectl -n ${KUBE_NAMESPACE:-idig-system}'
 alias idig-status='kubectl get idig -n ${IDIG_NS:-idig-system} -o wide'
 alias idig-pods='kubectl get pods -n ${IDIG_NS:-idig-system}'
 alias idig-logs='kubectl logs -n ${IDIG_NS:-idig-system} -l app.kubernetes.io/name=idig-operator -f'

@@ -36,3 +36,7 @@ export VELOX_ARTIFACTORY_KEY=your_artifactory_key_here
 
 export MAIL_SERVER_HOST=localhost
 export TEST_LDAP_SERVER=apic.openldap1.fyre.ibm.com
+
+# ── Kubernetes ────────────────────────────────────────────────────────────────
+
+export KUBE_NAMESPACE=idig-system   # used by the kn alias

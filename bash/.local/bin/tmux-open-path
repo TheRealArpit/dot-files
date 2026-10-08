@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# tmux-open-path: extract visible file paths from a tmux pane and pick with fzf
+
+set -euo pipefail
+
+# tmux run-shell may have a bare PATH (no Homebrew), so add the usual dirs
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+
+pane_id="${1:-$(tmux display-message -p '#{pane_id}')}"
+pane_path="${2:-$(tmux display-message -p '#{pane_current_path}')}"
+
+# Extract all potential paths (including path:line) from pane scrollback
+matches=$(tmux capture-pane -pS -1000 -t "$pane_id" | \
+  grep -oE '([a-zA-Z0-9_.~/-]+/[a-zA-Z0-9_.-]+(:[0-9]+(:[0-9]+)?)?)' | \
+  grep -v -E '^(/dev/|/bin/|/usr/bin/|/etc/|~/\.local/bin/)' | \
+  sort -u || true)
+
+if [ -z "$matches" ]; then
+  echo "No file paths found on screen."
+  sleep 1
+  exit 0
+fi
+
+selected=$(echo "$matches" | fzf --reverse --prompt="open in nvim ❯ " --height=100% || true)
+
+if [ -n "$selected" ]; then
+  # Close popup then execute open-in-nvim
+  ~/.local/bin/open-in-nvim "$pane_path" "$selected"
+fi

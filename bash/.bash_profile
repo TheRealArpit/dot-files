@@ -11,5 +11,5 @@ unset _shell_config_dir
 [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/al-ameenadedeji/.rd/bin:$PATH"
+export PATH="/Users/mirdha/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

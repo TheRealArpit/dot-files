@@ -23,3 +23,4 @@
   `zi`                Interactive fzf directory jump list
   `lg`                Open Lazygit terminal interface
   `ld`                Open Lazydocker terminal interface
+  `e <path>`          Open file in Neovim (alias for nvim)

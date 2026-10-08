@@ -21,13 +21,13 @@ dothelp() {
   if [[ -z "$topic" ]]; then
     if command -v fzf >/dev/null 2>&1; then
       local chosen
-      chosen=$(command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; \
-        | command fzf --prompt="dothelp ❯ " \
-                      --reverse \
-                      --height=70% \
-                      --preview-window="right:65%:wrap" \
-                      --bind="ctrl-d:preview-down,ctrl-u:preview-up" \
-                      --preview="command -v bat >/dev/null && bat --style=plain --color=always --paging=never --language=markdown $doc_dir/{}.md || cat $doc_dir/{}.md") || return 0
+      chosen=$(command find "$doc_dir" -maxdepth 1 -name "*.md" -exec basename {} .md \; |
+        command fzf --prompt="dothelp ❯ " \
+          --reverse \
+          --height=70% \
+          --preview-window="right:65%:wrap" \
+          --bind="ctrl-d:preview-down,ctrl-u:preview-up" \
+          --preview="command -v bat >/dev/null && bat --style=plain --color=always --paging=never --language=markdown $doc_dir/{}.md || cat $doc_dir/{}.md") || return 0
       [[ -n "$chosen" ]] && dothelp "$chosen"
       return 0
     else
@@ -68,11 +68,9 @@ kube-stack() {
 }
 
 # ── Fyre ───────────────────────────────────────────────────────────────────────
-# unalias in case an old alias is still in memory (e.g. from a previous stow)
-unalias fyre-create 2>/dev/null
 fyre-create() {
-  local cluster_name="${1:-${FYRE_CLUSTER_NAME:-testing-stack-name}}"
-  fyre create 3 43 16 -K \
+  local cluster_name="${1:-upgrade2-test-stack}"
+  ~/.config/fyre/fyre create 2 48 16 -K \
     -c "$cluster_name" \
     --registry-secret ~/.config/fyre/registry-info.yaml \
     --k8s-version 1.33 \
@@ -97,10 +95,10 @@ ta() {
     session="$1"
   else
     local output
-    output=$(tmux list-sessions -F "#{session_name}" 2>/dev/null \
-      | fzf --prompt="session ❯ " --reverse --print-query \
-            --header="^x: kill session" \
-            --bind='ctrl-x:execute(tmux kill-session -t {})+reload(tmux list-sessions -F "#{session_name}" 2>/dev/null)')
+    output=$(tmux list-sessions -F "#{session_name}" 2>/dev/null |
+      fzf --prompt="session ❯ " --reverse --print-query \
+        --header="^x: kill session" \
+        --bind='ctrl-x:execute(tmux kill-session -t {})+reload(tmux list-sessions -F "#{session_name}" 2>/dev/null)')
     code=$?
 
     # fzf returns 130 on Esc/Ctrl-C (cancel)
@@ -136,17 +134,22 @@ ta() {
 tk() {
   local target="${1:-$(tmux display-message -p '#S' 2>/dev/null)}"
   if [[ -z "$target" ]]; then
-    echo "✖ no session name given and not inside tmux — usage: tk <session-name>"; return 1
+    echo "✖ no session name given and not inside tmux — usage: tk <session-name>"
+    return 1
   fi
   if ! tmux has-session -t "$target" 2>/dev/null; then
-    echo "✖ no session named '$target'"; return 1
+    echo "✖ no session named '$target'"
+    return 1
   fi
   read "reply?kill session '$target'? [y/N] "
-  [[ "${reply:l}" == "y" ]] || { echo "aborted"; return 0; }
-  tmux kill-session -t "$target" \
-    && echo "✔ killed session: $target" \
-    && tmux run-shell ~/.tmux/plugins/tmux-resurrect/scripts/save.sh \
-    && echo "✔ snapshot updated"
+  [[ "${reply:l}" == "y" ]] || {
+    echo "aborted"
+    return 0
+  }
+  tmux kill-session -t "$target" &&
+    echo "✔ killed session: $target" &&
+    tmux run-shell ~/.tmux/plugins/tmux-resurrect/scripts/save.sh &&
+    echo "✔ snapshot updated"
 }
 
 # tmux-help — alias to view tmux cheatsheet
@@ -169,9 +172,9 @@ tnew() {
   local dir
   dir=$(tmux-sessionizer --pick) || return 0
   [[ -z "$dir" ]] && return 0
-  tmux new-session -d -s "$name" -c "$dir" \
-    && echo "✔ created session '$name' in $dir" \
-    && { [ -n "${TMUX:-}" ] && tmux switch-client -t "$name" || tmux attach -t "$name"; }
+  tmux new-session -d -s "$name" -c "$dir" &&
+    echo "✔ created session '$name' in $dir" &&
+    { [ -n "${TMUX:-}" ] && tmux switch-client -t "$name" || tmux attach -t "$name"; }
 }
 
 # explore — cd into a directory and open nvim with oil.nvim

@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# open-in-nvim: open a file path (optionally with :line) in Neovim.
+# Handles:
+#   open-in-nvim "path/to/file.lua:42"
+#   open-in-nvim "/current/working/dir" "path/to/file.lua:42"
+# Inside tmux: reuses an nvim pane in the current window, else splits right.
+
+# tmux run-shell may have a bare PATH (no Homebrew), so add the usual dirs
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+
+base_dir=""
+raw=""
+piped_input=""
+
+if [ ! -t 0 ]; then
+  piped_input=$(cat)
+fi
+
+if [ $# -ge 2 ]; then
+  base_dir="$1"
+  raw="$2"
+elif [ $# -ge 1 ] && [ -n "$piped_input" ]; then
+  base_dir="$1"
+  raw="$piped_input"
+elif [ -n "$piped_input" ]; then
+  raw="$piped_input"
+else
+  raw="${1:-}"
+fi
+
+# Trim any trailing newline or whitespace
+raw=$(echo "$raw" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+if [ -z "$raw" ]; then
+  exit 0
+fi
+
+# ── URLs go to the browser ──────────────────────────────────────────
+if [[ "$raw" =~ ^https?:// ]]; then
+  open "$raw" 2>/dev/null || xdg-open "$raw" >/dev/null 2>&1
+  exit 0
+fi
+
+# ── Clean up punctuation, quotes, brackets around the clicked word ──
+if [[ "$raw" == file://* ]]; then
+  raw="${raw#file://}"
+  raw="/${raw#*/}"   # drop OSC 8 hostname (file://host/path)
+fi
+raw="${raw#[\'\"]}"
+raw="${raw%[\'\"]}"
+raw="${raw#[\(\[\{]}"
+raw="${raw%[\)\]\}]}"
+raw="${raw%,}"
+raw="${raw%;}"
+
+# ── Extract path:line(:col) ─────────────────────────────────────────
+lineno=""
+if [[ "$raw" =~ ^(.+):([0-9]+):[0-9]+$ || "$raw" =~ ^(.+):([0-9]+)$ ]]; then
+  filepath="${BASH_REMATCH[1]}"
+  lineno="${BASH_REMATCH[2]}"
+else
+  filepath="$raw"
+fi
+
+# ── Resolve path ────────────────────────────────────────────────────
+filepath="${filepath/#\~/$HOME}"
+resolved=""
+if [[ "$filepath" == /* ]]; then
+  [ -e "$filepath" ] && resolved="$filepath"
+else
+  pane_path=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null || echo "")
+  for dir in "$base_dir" "$pane_path" "$PWD" "$HOME"; do
+    if [ -n "$dir" ] && [ -e "$dir/$filepath" ]; then
+      resolved="$dir/$filepath"
+      break
+    fi
+  done
+fi
+
+# If target doesn't exist on disk, exit cleanly without error
+if [ -z "$resolved" ]; then
+  exit 0
+fi
+
+# ── Build nvim arguments ────────────────────────────────────────────
+if [ -n "$lineno" ]; then
+  nvim_args="+$lineno $(printf '%q' "$resolved")"
+else
+  nvim_args="$(printf '%q' "$resolved")"
+fi
+
+# ── Inside tmux: reuse an nvim pane in this window, else split right ──
+if [ -n "${TMUX:-}" ]; then
+  src_pane=$(tmux display-message -p '#{pane_id}')
+  nvim_pane=$(tmux list-panes -t "$src_pane" -F '#{pane_id} #{pane_current_command}' |
+    awk -v src="$src_pane" '$1 != src && $2 ~ /^n?vim$/ { print $1; exit }')
+
+  # nvim's RPC socket belongs to the pane pid or one of its descendants
+  socket=""
+  if [ -n "$nvim_pane" ]; then
+    pids=$(tmux display-message -p -t "$nvim_pane" '#{pane_pid}')
+    for _ in 1 2 3; do
+      pids="$pids $(pgrep -P "$(echo $pids | tr ' ' ',')" 2>/dev/null | tr '\n' ' ')"
+    done
+    for p in $pids; do
+      for s in /tmp/nvim.*/*/nvim."$p".0 "${TMPDIR%/}"/nvim.*/*/nvim."$p".0; do
+        [ -S "$s" ] && socket="$s" && break 2
+      done
+    done
+  fi
+
+  if [ -n "$socket" ]; then
+    # leave a terminal window (e.g. toggleterm) before editing
+    cmd="if &buftype ==# 'terminal' | wincmd p | endif"
+    cmd="$cmd | edit ${lineno:++$lineno }$(printf '%q' "$resolved")"
+    nvim --server "$socket" --remote-expr "execute('${cmd//\'/\'\'}')" >/dev/null
+    tmux select-pane -t "$nvim_pane"
+  else
+    tmux split-window -h -t "$src_pane" -e "PATH=$PATH" -c "$(dirname "$resolved")" "nvim $nvim_args"
+  fi
+  exit 0
+fi
+
+# ── Fallback outside tmux ───────────────────────────────────────────
+nvim ${lineno:++$lineno} "$resolved"
+exit 0

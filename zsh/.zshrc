@@ -3,6 +3,9 @@
 
 [[ -o interactive ]] || return
 
+# Disable flow control freeze (Ctrl+S / Ctrl+Q) so Ctrl+S works cleanly as tmux prefix
+[[ -t 0 ]] && stty -ixon 2>/dev/null || true
+
 HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=20000
@@ -56,6 +59,9 @@ for _plugin in \
   [[ -r "$_plugin" ]] && source "$_plugin" && break
 done
 
+bindkey '^[l'  autosuggest-accept   # Alt+l: accept full suggestion
+bindkey '^[k'  forward-word         # Alt+k: accept next word of suggestion
+
 for _plugin in \
   "${HOMEBREW_PREFIX:-}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
   /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
@@ -67,5 +73,5 @@ unset _plugin
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/al-ameenadedeji/.rd/bin:$PATH"
+export PATH="/Users/mirdha/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

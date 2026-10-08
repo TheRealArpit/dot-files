@@ -14,4 +14,4 @@
   `idig-run`          Run full clean, manifest generate, CRD install & dev operator
 
 ── Fyre Cloud ────────────────────────────────────────────────────
-  `fyre-create <n>`   Spin up 3-node SVL k8s cluster with gateway API
+  `fyre-create <n>`   Spin up 2-node SVL k8s cluster with gateway API
